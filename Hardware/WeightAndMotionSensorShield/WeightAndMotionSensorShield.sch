@@ -467,4 +467,103 @@ Wire Wire Line
 	4300 3700 5100 3700
 Wire Wire Line
 	4300 3800 5100 3800
+$Comp
+L Connector_Generic:Conn_01x03 J12
+U 1 1 5D3800F0
+P 10250 6100
+F 0 "J12" H 10400 6100 50  0000 R CNN
+F 1 "LR2" H 10450 6200 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 10250 6100 50  0001 C CNN
+F 3 "~" H 10250 6100 50  0001 C CNN
+	1    10250 6100
+	1    0    0    1   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x03 J9
+U 1 1 5D3800F7
+P 9350 6100
+F 0 "J9" H 9500 6100 50  0000 R CNN
+F 1 "LL2" H 9550 6200 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 9350 6100 50  0001 C CNN
+F 3 "~" H 9350 6100 50  0001 C CNN
+	1    9350 6100
+	-1   0    0    1   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x03 J11
+U 1 1 5D3800FE
+P 10250 5400
+F 0 "J11" H 10400 5400 50  0000 R CNN
+F 1 "UR2" H 10450 5500 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 10250 5400 50  0001 C CNN
+F 3 "~" H 10250 5400 50  0001 C CNN
+	1    10250 5400
+	1    0    0    1   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x03 J8
+U 1 1 5D380105
+P 9350 5400
+F 0 "J8" H 9500 5400 50  0000 R CNN
+F 1 "UL2" H 9550 5500 50  0000 R CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_1x03_P2.54mm_Vertical" H 9350 5400 50  0001 C CNN
+F 3 "~" H 9350 5400 50  0001 C CNN
+	1    9350 5400
+	-1   0    0    1   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x04 J10
+U 1 1 5D38010C
+P 9750 4850
+F 0 "J10" H 9829 4842 50  0000 L CNN
+F 1 "CELLS" H 9829 4751 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 9750 4850 50  0001 C CNN
+F 3 "~" H 9750 4850 50  0001 C CNN
+	1    9750 4850
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	9750 5400 9750 5050
+Wire Wire Line
+	9850 5400 9850 5050
+Wire Wire Line
+	9550 5400 9750 5400
+Wire Wire Line
+	9850 5400 10050 5400
+Wire Wire Line
+	9950 5700 9950 5050
+Wire Wire Line
+	9800 5650 9650 5650
+Wire Wire Line
+	9650 5650 9650 5050
+Wire Wire Line
+	9550 6100 9650 6100
+Wire Wire Line
+	9650 5700 9650 6100
+Wire Wire Line
+	9650 5700 9950 5700
+Wire Wire Line
+	9950 6100 10050 6100
+Wire Wire Line
+	9800 5650 9800 5750
+Wire Wire Line
+	9800 5750 9950 5750
+Wire Wire Line
+	9950 5750 9950 6100
+Wire Wire Line
+	9550 5300 10050 5300
+Wire Wire Line
+	9550 5500 9600 5500
+Wire Wire Line
+	9600 5500 9600 6200
+Wire Wire Line
+	9600 6200 9550 6200
+Wire Wire Line
+	10050 6200 10000 6200
+Wire Wire Line
+	10000 6200 10000 5500
+Wire Wire Line
+	10000 5500 10050 5500
+Wire Wire Line
+	9550 6000 10050 6000
 $EndSCHEMATC

@@ -1,8 +1,8 @@
 #include <HX711_ADC.h>
 #include "PIRSensor.h"
 
-HX711_ADC loadCell(A0, A1);
-PIRSensor motionSensor(A2);
+HX711_ADC loadCell(3, 2); // DT, SCK
+PIRSensor motionSensor(4);
 long lastLoadCellUpdate = 0l;
 
 void setup() {
