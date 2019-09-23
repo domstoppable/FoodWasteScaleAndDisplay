@@ -2,7 +2,7 @@ package com.foodwastescale;
 
 import android.os.Bundle;
 import com.facebook.react.ReactActivity;
-import io.raks.wakeupapp.RNWakeUpApp;
+//import io.raks.wakeupapp.RNWakeUpApp;
 
 public class MainActivity extends ReactActivity {
 
@@ -18,6 +18,6 @@ public class MainActivity extends ReactActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        RNWakeUpApp.sendEvent(savedInstanceState);
+        //RNWakeUpApp.sendEvent(savedInstanceState);
     }
 }

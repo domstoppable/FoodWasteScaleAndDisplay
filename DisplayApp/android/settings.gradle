@@ -1,4 +1,6 @@
 rootProject.name = 'FoodWasteScale'
+include ':react-native-gesture-handler'
+project(':react-native-gesture-handler').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-gesture-handler/android')
 include ':react-native-wakeup-screen'
 project(':react-native-wakeup-screen').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-wakeup-screen/android')
 include ':react-native-serialport'
