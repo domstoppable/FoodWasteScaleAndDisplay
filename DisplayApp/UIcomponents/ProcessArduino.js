@@ -23,7 +23,7 @@ export default class ProcessArduino extends Component {
 		this.buffer = '';
 	}
 
-   
+
 
 	render() {
 	    const {navigate} = this.props.navigation;

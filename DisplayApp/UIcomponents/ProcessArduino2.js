@@ -1,0 +1,323 @@
+import React, {Component} from 'react';
+import {Picker, StyleSheet, Text, View, Button, TouchableHighlight} from 'react-native';
+import HomeScreen from './HomeScreen.js';
+import DevOptions from './DevOptions';
+import {RNSerialport, definitions, actions} from 'react-native-serialport';
+import {DeviceEventEmitter} from 'react-native';
+import GLOBAL from './Globals'
+import RNFetchBlob from 'react-native-fetch-blob';
+import GoogleSheet, { batchGet, append } from 'react-native-google-sheet';
+import ExportGoogleSheets from './ExportGoogleSheets'
+export default class ProcessArduino2 extends Component {
+	constructor(){
+		super();
+		this.state = {
+			data: undefined,
+			devices: [],
+			selectedDevice: null,
+			debug: null,
+            init_text: 'Initializing...',
+            weight: null,
+            date: '',
+            curTime: '',
+            taps:0,
+            myInterval:null,
+            date: '',
+            // If modifying these scopes, delete token.json.
+            SCOPES: ['https://www.googleapis.com/auth/spreadsheets'],
+            // The file token.json stores the user's access and refresh tokens, and is
+            // created automatically when the authorization flow completes for the first
+            // time.
+            TOKEN_PATH: 'token.json',
+
+		};
+		this.buffer = '';
+	}
+
+    pickDevice = (device)=>{
+        		if(device){
+        			this.setState({selectedDevice:device});
+        		}
+        }
+
+        toggleConnection = ()=>{
+            if(this.state.connected){
+                RNSerialport.disconnect();
+                this.setState({connected:false});
+            }else{
+                let deviceName = this.state.selectedDevice.name;
+                let baudRate = 9600;
+                this.setState({connected:true});
+                RNSerialport.connectDevice(deviceName, baudRate);
+            }
+        }
+
+        onUsbAttached = ()=>{
+
+            this.getDeviceList();
+        }
+        onUsbDetached = ()=>{
+
+        }
+        onUsbNotSupported = ()=>{
+    //		console.warn('Usb not supported');
+        }
+        onError(error) {
+//            console.warn('Code: ' + error.errorCode + ' Message: ' +error.errorMessage)
+        }
+        onConnectedDevice = ()=>{
+    //		console.warn('Connected');
+
+            this.setState({connected:true});
+        }
+        onDisconnectedDevice = ()=>{
+    //		console.warn('Disconnected');
+            this.setState({connected:false});
+        }
+        onServiceStarted = ()=>{
+    //		console.warn('Service started');
+            this.getDeviceList();
+        }
+        onServiceStopped = ()=>{
+    //		console.warn('Service stopped');
+        }
+
+        onReadData = (data)=>{
+            data = data.payload;
+    //		console.warn('reading data!!!');
+            for(let i=0; i<data.length; i++){
+                let character = String.fromCharCode(data[i]);
+                if(character === '\n' || character === '\r'){
+                    if(this.buffer !== ''){
+                        this.processData(this.buffer);
+                    }
+                    this.buffer = '';
+                }else{
+                    this.buffer += character;
+                }
+            }
+        }
+
+        processData = (data)=>{
+    //		console.log('processing data');
+            if(data[0] === 'w'){
+                this.setState({weight: this.buffer.substring(1)});
+    //			console.log('proper weight');
+//    			console.warn(this.state.weight);
+
+    //			console.log('recorded proper weight');
+            }else if(data[0] === 'm'){
+//                console.warn('test');//wakeUpApp();
+            }else{
+                // this.setState({weight: this.buffer});
+
+    //			console.warn('buffered set');
+    //			console.warn(this.state.weight);
+            }
+        }
+
+        getDeviceList = ()=>{
+            RNSerialport.getDeviceList(response => {
+                if(!response.status) {
+                    alert('Code: ' + response.errorCode + ' Message: ' +response.errorMessage);
+                    return;
+                }
+
+                this.setState({devices:response.devices});
+                this.setState({selectedDevice:response.devices[0]});
+                this.toggleConnection();
+                if(!Boolean(this.state.selectedDevice)){
+                    this.setState({selectedDevice:response.devices[0]});
+                    if(!this.state.connected){
+                        this.toggleConnection();
+                    }
+                }
+            });
+        }
+        ///It initializes by adding listeners. But it seems like DeviceEventEmitter is not even noticing detached devices
+        ///Maybe it's listening to the wrong thing
+        componentDidMount() {
+                var that = this;
+                var date = new Date().getDate(); //Current Date
+                var month = new Date().getMonth() + 1; //Current Month
+                var year = new Date().getYear(); //Current Year
+                var hours = new Date().getHours(); //Current Hours
+                var min = new Date().getMinutes(); //Current Minutes
+                var sec = new Date().getSeconds(); //Current Seconds
+                var AMPM = '';
+                var day_string = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+                this.myInterval = setInterval( () => {
+                      this.setState({
+                            curTime : new Date().toDateString()
+
+                      })
+                        var date = new Date().getDate(); //Current Date
+                        var month = new Date().getMonth() + 1; //Current Month
+                        var year = new Date().getFullYear() -2000; //Current Year
+                        var day = new Date().getDay();
+                        var hours = new Date().getHours(); //Current Hours
+                        var min = new Date().getMinutes(); //Current Minutes
+                        var sec = new Date().getSeconds(); //Current Seconds
+                        if(hours/12 > 1){
+                            AMPM = 'PM';
+                        }
+                        else{
+                            AMPM = 'AM';
+                        }
+                       this.setState({date: day_string[day] +  ', ' + month + '/' + date + '/' + year + '\n' + hours%12 + ':' + min + ' ' + AMPM });
+
+                    },1000)
+                DeviceEventEmitter.addListener('onServiceStarted', this.onServiceStarted, this);
+                DeviceEventEmitter.addListener('onServiceStopped', this.onServiceStopped,this);
+                DeviceEventEmitter.addListener('onDeviceAttached', this.onUsbAttached, this);
+                DeviceEventEmitter.addListener('onDeviceDetached', this.onUsbDetached, this);
+                DeviceEventEmitter.addListener('onDeviceNotSupported', this.onUsbNotSupported, this);
+                DeviceEventEmitter.addListener('onError', this.onError, this);
+                DeviceEventEmitter.addListener('onConnected', this.onConnectedDevice, this);
+                DeviceEventEmitter.addListener('onDisconnected', this.onDisconnectedDevice, this);
+
+                DeviceEventEmitter.addListener('onReadDataFromPort', (data)=>this.onReadData(data), this);
+
+//                 Added listeners
+                 RNSerialport.setAutoConnect(true); ///Making it autoconnect true allows very quick readings back on the Arduino.
+                 RNSerialport.startUsbService();
+        }
+        //Make sure to unmount the Arduino SerialPort everytime else it will absolutely fail
+    componentWillUnmount() {
+        DeviceEventEmitter.removeAllListeners();
+        RNSerialport.stopUsbService();
+        clearInterval(this.myInterval);
+    }
+    static navigationOptions = {
+            header:null
+          };
+    checkTaps = () => {
+          numTaps = this.state.taps;
+          if(numTaps >= 5){
+              this.setState({taps:0})
+              this.props.navigation.navigate('OperatorPassword');
+          }
+          else{
+              this.setState({taps: numTaps+1})
+          }
+      }
+
+    testExport = () => {
+        const values = [
+          ['build', '2017-11-05T05:40:35.515Z'],
+          ['deploy', '2017-11-05T05:42:04.810Z']
+        ];
+
+        // construct csvString
+        const csvString = this.state.curTime + ',' +this.state.weight + ',' + 'Logging the Weight' + '\n';
+        // write the current list of answers to a local csv file
+        const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/data.csv`;
+        // pathToWrite /storage/emulated/0/Download/data.csv
+        RNFetchBlob.fs
+              .writeStream(pathToWrite, 'utf8', true)
+          .then((ofstream) => {
+            ofstream.write(csvString)
+          })
+          .catch(error => console.error(error));
+    }
+
+	render() {
+	    const {navigate} = this.props.navigation;
+	    const connected_test = this.props.navigation.getParam('connected_test', 0)
+        const curWeight = this.props.navigation.getParam('curWeight', 0)
+        const displayType = this.props.navigation.getParam('displayType', 0)
+        //this.testExport(); //This uploads to a local data.csv file. It will break if data.csv does not exist for now
+
+		return (
+			<View style={styles.container}>
+
+                <Text style={styles.value}>{this.displayScreenMessage(displayType)}</Text>
+                <View style={styles.invisView}>
+                                    <TouchableHighlight style={styles.invisButton} onPress={this.checkTaps}><Text></Text></TouchableHighlight>
+                      </View>
+
+
+
+
+
+			</View>
+		);
+	}
+	displayScreenMessage = (displayType) =>{
+            if(displayType == 'Baseline'){
+                return <Text style={styles.value}>{this.state.date}</Text>
+
+            } else if (displayType == 'Numeric'){
+                return <Text style={styles.value}>{displayType} {"\n"}{this.state.weight} {"\n"} {this.state.curTime}</Text>
+
+            } else if (displayType == 'Metaphoric'){
+                return <Text style={styles.value}>{displayType} {"\n"} Something metaphorical </Text>
+
+            } else if (displayType == 'Ambient'){
+                return <Text style={styles.value}>{displayType} {"\n"} Something ambient </Text>
+
+            } else {
+
+
+                return <Text style={styles.value}>{displayType} {"\n"} {this.state.weight} {"\n"} {this.state.curTime}</Text>
+            }
+        }
+
+}
+
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		flexDirection: 'column',
+		backgroundColor: '#F5FCFF',
+	},
+	title: {
+		fontSize: 8,
+		textAlign: 'center',
+	},
+	device: {
+		fontSize: 18,
+		textAlign: 'center',
+		color: '#333333',
+		marginBottom: 5,
+	},
+	value: {
+		fontSize: 60,
+		textAlign: 'center',
+		fontWeight: 'bold'
+//		margin: 3,
+//		flexGrow:1,
+	},
+	button: {
+    	    height: "13%",
+    //	    padding: 10,
+    	    margin: 1,
+            elevation: 2,
+            width: "40%",
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'black',
+    //        flexDirection: 'column',
+          },
+    invisView: {
+              position: 'absolute',
+              top: "90%",
+              right: "90%",
+              zIndex: 50,
+              backgroundColor: '#fff',
+              height: "100%",
+              width: "100%",
+              },
+    invisButton: {
+              height: "100%",
+              padding: 0,
+              margin: 0,
+              elevation: 0,
+              width: "100%",
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: '#F5FCFF',
+              },
+});

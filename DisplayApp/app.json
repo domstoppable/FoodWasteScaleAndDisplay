@@ -1,4 +1,5 @@
 {
   "name": "FoodWasteScale",
-  "displayName": "FoodWasteScale"
+  "displayName": "FoodWasteScale",
+  "orientation": "landscape"
 }
