@@ -4,6 +4,9 @@ import android.app.Application;
 
 import com.facebook.react.ReactApplication;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
+import com.reactnativecommunity.webview.RNCWebViewPackage;
+import org.wonday.orientation.OrientationPackage;
+import com.RNFetchBlob.RNFetchBlobPackage;
 //import io.raks.wakeupapp.ReactNativeWakeUpAppPackage;
 import com.melihyarikkaya.rnserialport.RNSerialportPackage;
 import com.facebook.react.ReactNativeHost;
@@ -27,6 +30,9 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
             new RNGestureHandlerPackage(),
+            new RNCWebViewPackage(),
+            new OrientationPackage(),
+            new RNFetchBlobPackage(),
             //new ReactNativeWakeUpAppPackage(),
             new RNSerialportPackage()
       );
