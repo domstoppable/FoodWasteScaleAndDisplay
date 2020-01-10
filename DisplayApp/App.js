@@ -3,6 +3,7 @@ import {Picker, StyleSheet, Text, View, Button, StatusBar} from 'react-native';
 import HomeScreen from './UIcomponents/HomeScreen';
 import DevOptions from './UIcomponents/DevOptions';
 import OperatorPassword from './UIcomponents/OperatorPassword';
+import OperatorComment from './UIcomponents/OperatorComment';
 import ProcessArduino2 from './UIcomponents/ProcessArduino2';
 import {RNSerialport, definitions, actions} from 'react-native-serialport';
 import {DeviceEventEmitter} from 'react-native';
@@ -13,9 +14,9 @@ import {createAppContainer, createStackNavigator, createSwitchNavigator} from 'r
 import {PermissionsAndroid} from 'react-native';
 import {requestAppPermissions} from './UIcomponents/requestAppPermissions'
 import ExportGoogleSheets from './UIcomponents/ExportGoogleSheets'
-
+import TestGETForm from './UIcomponents/TestGETForm'
 const MainNavigator = createStackNavigator({
-            HomeScreen,DevOptions, ProcessArduino2, OperatorPassword},
+            HomeScreen,DevOptions, ProcessArduino2, OperatorPassword, OperatorComment},
             //Start the application on the HomeScreen
             {initialRouteName: 'HomeScreen'})
 AppContainer = createAppContainer(MainNavigator);
@@ -45,7 +46,8 @@ export default class App extends Component{
     render(){
 
         return (
-//                    <ExportGoogleSheets/>
+                    //<TestGETForm/>
+//                    <Text> yup </Text>
                    <AppContainer/>
                    ///clientid: 819216036500-mtq03qrsu1l3aolhnvs3m9d7ilavc38r.apps.googleusercontent.com
                    //clientsecret:YxZSHsOrabCfmlN7zvRXSO2F

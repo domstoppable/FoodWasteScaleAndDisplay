@@ -8,5 +8,16 @@ export default {
     DARKGRAY: '#999',
     WEIGHT: 0,
   },
-//  global.weightlog =  996;
+//  fieldNames: {
+//      'Timestamp': 'entry.1812376040',
+//      'Weight': 'entry.21551981',
+//      'SubjectID': 'entry.757893397',
+//      'Comments': 'entry.1385450040',
+//      },
+//  global.fieldNames = {
+//                            'Timestamp': 'entry.1812376040',
+//                            'Weight': 'entry.21551981',
+//                            'SubjectID': 'entry.757893397',
+//                            'Comments': 'entry.1385450040',
+//                            },
 };

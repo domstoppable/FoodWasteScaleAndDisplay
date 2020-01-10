@@ -5,10 +5,17 @@ import { Text, View, StyleSheet , TextInput, TouchableHighlight} from 'react-nat
 import { Component } from 'react';
 import DevOptions from './DevOptions';
 import { Button, Alert, AppRegistry } from 'react-native';
-//import {createStacknavigator} from 'react-navigation';
+import RNFetchBlob from 'rn-fetch-blob';
+import {SheetsExport} from './SheetsExport';
+const fieldNames = {
+    'Timestamp': 'entry.1812376040',
+    'Weight': 'entry.21551981',
+    'SubjectID': 'entry.757893397',
+    'Comments': 'entry.1385450040',
+    };
+const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/A3.csv`;
 
-
-export default class OperatorPassword extends Component {
+export default class OperatorComment extends Component {
     constructor(){
         super();
         this.isDeveloper='This is the OperatorPassword'
@@ -26,16 +33,14 @@ export default class OperatorPassword extends Component {
 //        console.warn(Orientation)
 ////          Orientation.lockToPortrait();
 //      }
-  checkOperatorPass = () => {
-      curPass = this.state.input_password
-
-      if(curPass == 'a'){
-        this.props.navigation.navigate('DevOptions', {displayType: 'HomeScreen'});
-        }
-      else{
-        this.setState({input_password:''})
-//        console.warn('Wrong password')
-      }
+  checkOperatorComment = () => {
+      curComment = this.state.input_password
+      RNFetchBlob.fs.appendFile(pathToWrite, curComment, 'utf8');
+//      this.props.navigation.navigate('ProcessArduino2', {commentOutput:curPass});
+      var formData = new FormData();
+      formData.append(fieldNames.Comments, curComment)
+      SheetsExport(formData);
+      this.props.navigation.goBack();
 
   }
 //  setTimeout(function(){that.setState({timePassed: true})}, 1000);
@@ -64,12 +69,11 @@ export default class OperatorPassword extends Component {
     return (
     //Buttons should be placed in Views so that they can be more modular
     <View style={styles2.container}>
-        <Text style={styles2.value}> Enter Password </Text>
+        <Text style={styles2.value}> Enter Comment </Text>
         <TextInput style={{height: 45,width: "50%",borderColor: "gray",borderWidth: 2, textAlign:'center', margin: 10}}
 //           placeholder="Password"
 //           placeholderTextColor="#9a73ef"
            returnKeyType='go'
-           secureTextEntry
            autoCorrect={false}
            contextMenuHidden={true}
            disableFullscreenUI={true}
@@ -78,7 +82,7 @@ export default class OperatorPassword extends Component {
         />
         <View style={styles2.containerrow}>
 
-        <TouchableHighlight style={styles2.button}  onPress={this.checkOperatorPass}>
+        <TouchableHighlight style={styles2.button}  onPress={this.checkOperatorComment}>
                     <Text style={{color:'white'}}>Ok</Text>
                   </TouchableHighlight>
           <TouchableHighlight style={styles2.button}  onPress={()=> goBack()}>

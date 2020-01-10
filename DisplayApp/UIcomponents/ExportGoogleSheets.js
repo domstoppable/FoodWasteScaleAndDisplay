@@ -103,7 +103,7 @@
 //  });
 //}
 
-import GoogleSheet, { batchGet, get} from 'react-native-google-sheet';
+import GoogleSheet, { batchGet, get, append, batchUpdate} from 'react-native-google-sheet';
 import React, {Component} from 'react';
 import {Picker, StyleSheet, Text, View, Button, TouchableHighlight} from 'react-native';
 export default function ExportGoogleSheets() {
@@ -113,13 +113,28 @@ export default function ExportGoogleSheets() {
 
   function _onPressButton() {
     console.warn('Pressed first')
-    batchGet().then(item => {
-      console.warn('Passed')
-      console.warn(item);
-    }).catch(e => console.warn(e))
-  }
+    const param = {ranges:'A'};
+//    batchGet(param).then(item => {
+//      console.warn('Passed')
+//      console.warn(item);
+//    }).catch(e => console.warn(e))
+    const param2 = {
+        spreadsheetId: '1hLF01Bkc8HvhI3VE3bKnMK-MFCzOwic2s9h36uOPV3Y',
+        valueInputOption: 'RAW',
+        range: 'Sheet1!A1:A2',
+        data: {
+            "values": [
+                'TEST'
+            ]
+        }
+    }
+    append(param2);
 
+
+  }
+  const API = 'https://sheets.googleapis.com/v4/spreadsheets/' + spreadsheetId + '/values/{A1}:append'
   return (
+
     <View style={{justifyContent:'center'}}>
       <GoogleSheet
         credentialsDetails={{

@@ -5,9 +5,25 @@ import DevOptions from './DevOptions';
 import {RNSerialport, definitions, actions} from 'react-native-serialport';
 import {DeviceEventEmitter} from 'react-native';
 import GLOBAL from './Globals'
-import RNFetchBlob from 'react-native-fetch-blob';
+import RNFetchBlob from 'rn-fetch-blob';
 import GoogleSheet, { batchGet, append } from 'react-native-google-sheet';
 import ExportGoogleSheets from './ExportGoogleSheets'
+import {ToastAndroid } from 'react-native';
+import {SheetsExport} from './SheetsExport';
+
+
+const spreadsheetId = '1hLF01Bkc8HvhI3VE3bKnMK-MFCzOwic2s9h36uOPV3Y'
+const formURI = 'https://docs.google.com/forms/d/1bdTauz1McigC98QHIEo_4jvB75s0sQBC3SdQrE30xuQ/formResponse';
+const sheetsURI = 'https://sheets.googleapis.com/v4/spreadsheets/' + spreadsheetId + ':append';
+// write the current list of answers to a local csv file
+const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/A3.csv`;
+//const fieldNames = GLOBAL.fieldNames;
+const fieldNames = {
+    'Timestamp': 'entry.1812376040',
+    'Weight': 'entry.21551981',
+    'SubjectID': 'entry.757893397',
+    'Comments': 'entry.1385450040',
+    };
 export default class ProcessArduino2 extends Component {
 	constructor(){
 		super();
@@ -20,9 +36,12 @@ export default class ProcessArduino2 extends Component {
             weight: null,
             date: '',
             curTime: '',
-            taps:0,
+            tapsPassword:0,
+            tapsComment:0,
             myInterval:null,
             date: '',
+            dateWrite: '',
+            subjectID: 'Subject 1',
             // If modifying these scopes, delete token.json.
             SCOPES: ['https://www.googleapis.com/auth/spreadsheets'],
             // The file token.json stores the user's access and refresh tokens, and is
@@ -137,6 +156,10 @@ export default class ProcessArduino2 extends Component {
         ///It initializes by adding listeners. But it seems like DeviceEventEmitter is not even noticing detached devices
         ///Maybe it's listening to the wrong thing
         componentDidMount() {
+                //First evaluate the file "config.txt"
+
+                RNFetchBlob.fs.readFile('/config.txt', 'utf8').then((data) => {console.warn(data)});
+
                 var that = this;
                 var date = new Date().getDate(); //Current Date
                 var month = new Date().getMonth() + 1; //Current Month
@@ -156,15 +179,32 @@ export default class ProcessArduino2 extends Component {
                         var year = new Date().getFullYear() -2000; //Current Year
                         var day = new Date().getDay();
                         var hours = new Date().getHours(); //Current Hours
-                        var min = new Date().getMinutes(); //Current Minutes
-                        var sec = new Date().getSeconds(); //Current Seconds
-                        if(hours/12 > 1){
-                            AMPM = 'PM';
-                        }
-                        else{
+                        //Conversion from military time to normal time
+
+                        if (hours > 0 && hours <= 12){
+                            hours = hours;
                             AMPM = 'AM';
                         }
-                       this.setState({date: day_string[day] +  ', ' + month + '/' + date + '/' + year + '\n' + hours%12 + ':' + min + ' ' + AMPM });
+                        else if (hours >  12){
+                            hours = hours - 12;
+                            AMPM = 'PM';
+                        } else if (hours == 0){
+                            hours = 12;
+                            AMPM = 'AM';
+                        }
+
+                        var min = new Date().getMinutes(); //Current Minutes
+                        var sec = new Date().getSeconds(); //Current Seconds
+
+                       this.setState({date: day_string[day] +  ', ' + month + '/' + date + '/' + year + '\n' + hours + ':' + min + ' ' + AMPM });
+                       this.setState({dateWrite: day_string[day] +  '\t'  + month + '/' + date + '/' + year + '\t' + hours + ':' + min + ' ' + AMPM });
+                       this.localExport(); //This uploads to a local data.csv file.
+
+                       var formData = new FormData();
+                       formData.append(fieldNames.Timestamp, this.state.curTime);
+                       formData.append(fieldNames.Weight, '' + this.state.weight);
+                       formData.append(fieldNames.SubjectID, this.state.subjectID);
+                       SheetsExport(formData); //This uploads to the internet.
 
                     },1000)
                 DeviceEventEmitter.addListener('onServiceStarted', this.onServiceStarted, this);
@@ -182,7 +222,7 @@ export default class ProcessArduino2 extends Component {
                  RNSerialport.setAutoConnect(true); ///Making it autoconnect true allows very quick readings back on the Arduino.
                  RNSerialport.startUsbService();
         }
-        //Make sure to unmount the Arduino SerialPort everytime else it will absolutely fail
+    //Make sure to unmount the Arduino SerialPort everytime else it will absolutely fail
     componentWillUnmount() {
         DeviceEventEmitter.removeAllListeners();
         RNSerialport.stopUsbService();
@@ -191,58 +231,96 @@ export default class ProcessArduino2 extends Component {
     static navigationOptions = {
             header:null
           };
-    checkTaps = () => {
-          numTaps = this.state.taps;
+    checkPassword = () => {
+          numTaps = this.state.tapsPassword;
           if(numTaps >= 5){
               this.setState({taps:0})
               this.props.navigation.navigate('OperatorPassword');
           }
           else{
-              this.setState({taps: numTaps+1})
+              this.setState({tapsPassword: numTaps+1})
           }
       }
+    checkComment = async () => {
+        numTaps = this.state.tapsComment;
+          if(numTaps >= 5){
+              this.setState({tapsComment:0})
+              this.props.navigation.navigate('OperatorComment');
+          }
+          else{
+              this.setState({tapsComment: numTaps+1})
+          }
 
-    testExport = () => {
-        const values = [
-          ['build', '2017-11-05T05:40:35.515Z'],
-          ['deploy', '2017-11-05T05:42:04.810Z']
-        ];
+
+    }
+    localExport = () => {
 
         // construct csvString
-        const csvString = this.state.curTime + ',' +this.state.weight + ',' + 'Logging the Weight' + '\n';
-        // write the current list of answers to a local csv file
-        const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/data.csv`;
+        const csvString = this.state.subjectID + ',' + this.state.dateWrite + ',' +this.state.weight + ',' + 'Logging the Weight' + '\n';
         // pathToWrite /storage/emulated/0/Download/data.csv
-        RNFetchBlob.fs
-              .writeStream(pathToWrite, 'utf8', true)
-          .then((ofstream) => {
-            ofstream.write(csvString)
-          })
-          .catch(error => console.error(error));
+        RNFetchBlob.fs.appendFile(pathToWrite, csvString, 'utf8')
+
     }
+
+//    //Does an HTTPS update to a Google Forms. Plans to do afetch to Google Sheets API v4 later
+//    //With proper authentication
+//    sheetsExport = (formData) => {
+//
+//    	fetch(formURI, {
+//    		method: 'POST',
+//    		body: formData,
+//    	}).then(response => {
+//    		if(response.ok){
+//    			return response.text();
+//    		}else{
+//    			console.log(response);
+//    			throw new Error('Request failed');
+//    		}
+//    	}).then(responseBody => {
+//    		if(responseBody.indexOf('Your response has been recorded.') === -1){
+//    			throw new Error('Unexpected response');
+//    		}else{
+//    			ToastAndroid.show('Data uploaded!', 3000);
+//    		}
+//    	}).catch(exception => {
+//    		console.error('Error while submitting data', exception);
+//    		ToastAndroid.show('Error while submitting data: ' + exception);
+//    	});
+//    }
+    onSelect = data => {
+        this.setState(data);
+      };
+
+      onPress = () => {
+        this.props.navigate("OperatorComment", { onSelect: this.onSelect });
+      };
 
 	render() {
 	    const {navigate} = this.props.navigation;
 	    const connected_test = this.props.navigation.getParam('connected_test', 0)
         const curWeight = this.props.navigation.getParam('curWeight', 0)
         const displayType = this.props.navigation.getParam('displayType', 0)
-        //this.testExport(); //This uploads to a local data.csv file. It will break if data.csv does not exist for now
-
+        const commentOutput = this.props.navigation.getParam('commentOutput', '');
 		return (
 			<View style={styles.container}>
 
                 <Text style={styles.value}>{this.displayScreenMessage(displayType)}</Text>
-                <View style={styles.invisView}>
-                                    <TouchableHighlight style={styles.invisButton} onPress={this.checkTaps}><Text></Text></TouchableHighlight>
-                      </View>
 
+                {/*This allows the researcher to go back to the Developer Screen*/}
+                <View style={styles.invisViewLeft}>
+                    <TouchableHighlight style={styles.invisButton} onPress={this.checkPassword}><Text></Text></TouchableHighlight>
+                </View>
 
-
-
+                {/*This allows the researcher to input a comment to upload'*/}
+                <View style={styles.invisViewRight}>
+                    <TouchableHighlight style={styles.invisButton} onPress={this.checkComment}><Text></Text></TouchableHighlight>
+                </View>
 
 			</View>
 		);
 	}
+
+	//This will check through all the current display types, and pick the way to display the information
 	displayScreenMessage = (displayType) =>{
             if(displayType == 'Baseline'){
                 return <Text style={styles.value}>{this.state.date}</Text>
@@ -301,7 +379,7 @@ const styles = StyleSheet.create({
             backgroundColor: 'black',
     //        flexDirection: 'column',
           },
-    invisView: {
+    invisViewLeft: {
               position: 'absolute',
               top: "90%",
               right: "90%",
@@ -310,6 +388,15 @@ const styles = StyleSheet.create({
               height: "100%",
               width: "100%",
               },
+    invisViewRight: {
+                  position: 'absolute',
+                  top: "90%",
+                  left: "90%",
+                  zIndex: 50,
+                  backgroundColor: '#fff',
+                  height: "100%",
+                  width: "100%",
+                  },
     invisButton: {
               height: "100%",
               padding: 0,

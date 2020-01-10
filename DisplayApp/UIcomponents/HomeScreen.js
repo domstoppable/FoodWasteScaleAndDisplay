@@ -41,18 +41,19 @@ export default class HomeScreen extends Component {
     //Buttons should be placed in Views so that they can be more modular
     <View style={styles2.container}>
         <View style={styles2.container_col}>
-            <Text style={styles2.value}> Welcome to the Food Waste Scale!!! </Text>
+            <Text style={styles2.value}> Welcome to the Food Waste Scale!!!! </Text>
             <TouchableHighlight style={styles2.button} onPress={()=> navigate('DevOptions', {displayType:'', connected_test})}>
-                    <Text>Pick Display Type</Text>
+            			<Text>Pick Display Type</Text>
             </TouchableHighlight>
 
-          </View>
-
-            //Button in the bottom left. Need to tap 6 times to open
-              <View style={styles2.invisView}>
-                    <TouchableHighlight style={styles2.invisButton} onPress={this.checkTaps}><Text></Text></TouchableHighlight>
-                  </View>
-          </View>
+        </View>
+        {/*Button in the bottom left. Need to tap 6 times to open*/}
+        <View style={styles2.invisView}>
+            <TouchableHighlight style={styles2.invisButton} onPress={this.checkTaps}>
+                        <Text> Test </Text>
+            </TouchableHighlight>
+        </View>
+    </View>
 
     );
   }
@@ -74,7 +75,7 @@ const styles2 = StyleSheet.create({
                 backgroundColor: '#F5FCFF',
             },
 	container: {
-		flex: 2,
+		flex: 5,
 		justifyContent: 'center',
 		alignItems: 'center',
 		backgroundColor: '#F5FCFF',
@@ -111,7 +112,7 @@ const styles2 = StyleSheet.create({
             top: "90%",
             right: "90%",
             zIndex: 50,
-            backgroundColor: '#fff',
+            backgroundColor: '#F5FCFF',
             height: "100%",
             width: "100%",
             },
