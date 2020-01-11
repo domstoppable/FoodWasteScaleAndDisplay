@@ -150,14 +150,24 @@ android {
 }
 
 dependencies {
+//    implementation project(':react-native-bluetooth-serial')
     implementation project(':react-native-gesture-handler')
     implementation project(':react-native-webview')
     implementation project(':react-native-orientation-locker')
     implementation project(':rn-fetch-blob')
     implementation project(':react-native-serialport')
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
+    implementation ("com.facebook.react:react-native:0.59.5"){ force = true }
+//    implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
+//    implementation 'androidx.appcompat:appcompat:1.0.0'
+//    implementation 'androidx.core:core:1.0.0'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation "androidx.appcompat:appcompat:1.0.0"
+//    implementation "androidx.exifinterface:exifinterface:1.0.0"
+//    implementation "androidx.legacy:legacy-support-core-ui:1.0.0"
+//    implementation "androidx.legacy:legacy-support-core-utils:1.0.0"
     implementation "com.facebook.react:react-native:+"  // From node_modules
+//    compile project(':react-native-bluetooth-serial')
 }
 
 // Run this once to be able to run the application with BUCK

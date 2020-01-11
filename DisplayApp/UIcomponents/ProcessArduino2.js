@@ -10,7 +10,7 @@ import GoogleSheet, { batchGet, append } from 'react-native-google-sheet';
 import ExportGoogleSheets from './ExportGoogleSheets'
 import {ToastAndroid } from 'react-native';
 import {SheetsExport} from './SheetsExport';
-
+import {Image} from 'react-native' ;
 
 const spreadsheetId = '1hLF01Bkc8HvhI3VE3bKnMK-MFCzOwic2s9h36uOPV3Y'
 const formURI = 'https://docs.google.com/forms/d/1bdTauz1McigC98QHIEo_4jvB75s0sQBC3SdQrE30xuQ/formResponse';
@@ -204,7 +204,7 @@ export default class ProcessArduino2 extends Component {
                        formData.append(fieldNames.Timestamp, this.state.curTime);
                        formData.append(fieldNames.Weight, '' + this.state.weight);
                        formData.append(fieldNames.SubjectID, this.state.subjectID);
-//                       SheetsExport(formData); //This uploads to the internet.
+                       SheetsExport(formData); //This uploads to the internet.
 
                     },1000)
                 DeviceEventEmitter.addListener('onServiceStarted', this.onServiceStarted, this);
@@ -329,7 +329,7 @@ export default class ProcessArduino2 extends Component {
                 return <Text style={styles.value}>{displayType} {"\n"}{this.state.weight} {"\n"} {this.state.curTime}</Text>
 
             } else if (displayType == 'Metaphoric'){
-                return <Text style={styles.value}>{displayType} {"\n"} Something metaphorical </Text>
+                return <Text style={styles.value}>{displayType} {"\n"} Something metaphorical </Text> //<Image source={require('./my-icon.')} />
 
             } else if (displayType == 'Ambient'){
                 return <Text style={styles.value}>{displayType} {"\n"} Something ambient </Text>
