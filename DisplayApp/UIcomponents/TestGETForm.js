@@ -1,7 +1,7 @@
 
 import React, {Component} from 'react';
 import {Picker, StyleSheet, Text, View, Button, TouchableHighlight} from 'react-native';
-import RNFetchBlob from 'rn-fetch-blob';
+import RNFetchBlob from 'react-native-fetch-blob';
 import {ToastAndroid } from 'react-native';
 
 const fieldNames = {

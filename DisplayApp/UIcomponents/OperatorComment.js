@@ -5,7 +5,7 @@ import { Text, View, StyleSheet , TextInput, TouchableHighlight} from 'react-nat
 import { Component } from 'react';
 import DevOptions from './DevOptions';
 import { Button, Alert, AppRegistry } from 'react-native';
-import RNFetchBlob from 'rn-fetch-blob';
+//import RNFetchBlob from 'react-native-fetch-blob';
 import {SheetsExport} from './SheetsExport';
 const fieldNames = {
     'Timestamp': 'entry.1812376040',
@@ -13,7 +13,7 @@ const fieldNames = {
     'SubjectID': 'entry.757893397',
     'Comments': 'entry.1385450040',
     };
-const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/A3.csv`;
+//const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/A3.csv`;
 
 export default class OperatorComment extends Component {
     constructor(){

@@ -5,7 +5,7 @@ import DevOptions from './DevOptions';
 import {RNSerialport, definitions, actions} from 'react-native-serialport';
 import {DeviceEventEmitter} from 'react-native';
 import GLOBAL from './Globals'
-import RNFetchBlob from 'rn-fetch-blob';
+//import RNFetchBlob from 'react-native-fetch-blob';
 import GoogleSheet, { batchGet, append } from 'react-native-google-sheet';
 import ExportGoogleSheets from './ExportGoogleSheets'
 import {ToastAndroid } from 'react-native';
@@ -16,7 +16,7 @@ const spreadsheetId = '1hLF01Bkc8HvhI3VE3bKnMK-MFCzOwic2s9h36uOPV3Y'
 const formURI = 'https://docs.google.com/forms/d/1bdTauz1McigC98QHIEo_4jvB75s0sQBC3SdQrE30xuQ/formResponse';
 const sheetsURI = 'https://sheets.googleapis.com/v4/spreadsheets/' + spreadsheetId + ':append';
 // write the current list of answers to a local csv file
-const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/A3.csv`;
+//const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/A3.csv`;
 //const fieldNames = GLOBAL.fieldNames;
 const fieldNames = {
     'Timestamp': 'entry.1812376040',
@@ -158,7 +158,7 @@ export default class ProcessArduino2 extends Component {
         componentDidMount() {
                 //First evaluate the file "config.txt"
 
-                RNFetchBlob.fs.readFile('/config.txt', 'utf8').then((data) => {console.warn(data)});
+//                RNFetchBlob.fs.readFile('/config.txt', 'utf8').then((data) => {console.warn(data)});
 
                 var that = this;
                 var date = new Date().getDate(); //Current Date
@@ -198,13 +198,13 @@ export default class ProcessArduino2 extends Component {
 
                        this.setState({date: day_string[day] +  ', ' + month + '/' + date + '/' + year + '\n' + hours + ':' + min + ' ' + AMPM });
                        this.setState({dateWrite: day_string[day] +  '\t'  + month + '/' + date + '/' + year + '\t' + hours + ':' + min + ' ' + AMPM });
-                       this.localExport(); //This uploads to a local data.csv file.
+//                       this.localExport(); //This uploads to a local data.csv file.
 
                        var formData = new FormData();
                        formData.append(fieldNames.Timestamp, this.state.curTime);
                        formData.append(fieldNames.Weight, '' + this.state.weight);
                        formData.append(fieldNames.SubjectID, this.state.subjectID);
-                       SheetsExport(formData); //This uploads to the internet.
+//                       SheetsExport(formData); //This uploads to the internet.
 
                     },1000)
                 DeviceEventEmitter.addListener('onServiceStarted', this.onServiceStarted, this);

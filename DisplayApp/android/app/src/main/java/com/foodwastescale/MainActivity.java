@@ -15,9 +15,9 @@ public class MainActivity extends ReactActivity {
         return "FoodWasteScale";
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //RNWakeUpApp.sendEvent(savedInstanceState);
-    }
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        //RNWakeUpApp.sendEvent(savedInstanceState);
+//    }
 }

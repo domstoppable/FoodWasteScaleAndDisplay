@@ -1,7 +1,5 @@
 //import React, {Component} from 'react';
-//import RNFetchBlob from 'rn-fetch-blob';
 import React, {Component} from 'react';
-import RNFetchBlob from 'rn-fetch-blob';
 import {ToastAndroid } from 'react-native';
 
 //Does an HTTPS update to a Google Forms. Plans to do afetch to Google Sheets API v4 later
