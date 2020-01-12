@@ -10,7 +10,7 @@ import GoogleSheet, { batchGet, append } from 'react-native-google-sheet';
 import ExportGoogleSheets from './ExportGoogleSheets'
 import {ToastAndroid } from 'react-native';
 import {SheetsExport} from './SheetsExport';
-
+import RNBluetoothClassic, { BTEvents } from 'react-native-bluetooth-classic';
 
 const spreadsheetId = '1hLF01Bkc8HvhI3VE3bKnMK-MFCzOwic2s9h36uOPV3Y'
 const formURI = 'https://docs.google.com/forms/d/1bdTauz1McigC98QHIEo_4jvB75s0sQBC3SdQrE30xuQ/formResponse';
@@ -24,6 +24,8 @@ const fieldNames = {
     'SubjectID': 'entry.757893397',
     'Comments': 'entry.1385450040',
     };
+
+
 export default class ProcessArduino2 extends Component {
 	constructor(){
 		super();
@@ -48,6 +50,7 @@ export default class ProcessArduino2 extends Component {
             // created automatically when the authorization flow completes for the first
             // time.
             TOKEN_PATH: 'token.json',
+            BTdeviceID: '00:14:03:06:2F:D9',
 
 		};
 		this.buffer = '';
@@ -102,25 +105,30 @@ export default class ProcessArduino2 extends Component {
         }
 
         onReadData = (data)=>{
-            data = data.payload;
-    //		console.warn('reading data!!!');
-            for(let i=0; i<data.length; i++){
-                let character = String.fromCharCode(data[i]);
-                if(character === '\n' || character === '\r'){
-                    if(this.buffer !== ''){
-                        this.processData(this.buffer);
-                    }
-                    this.buffer = '';
-                }else{
-                    this.buffer += character;
-                }
-            }
+            data = data.data;
+//    		console.warn('reading data!!!');
+//    		console.warn(data.length)
+//    		console.warn(data)
+    		this.processData(data)
+//            for(let i=0; i<data.length; i++){
+//                let character = String.fromCharCode(data[i]);
+//                if(character === '\n' || character === '\r'){
+//                    if(this.buffer !== ''){
+//                        this.processData(this.buffer);
+//                    }
+//                    this.buffer = '';
+//                }else{
+//                    this.buffer += character;
+//                }
+//            }
         }
 
         processData = (data)=>{
     //		console.log('processing data');
             if(data[0] === 'w'){
-                this.setState({weight: this.buffer.substring(1)});
+                this.setState({weight: data.substring(1)})
+//                this.setState({weight: this.buffer.substring(1)});
+//                console.warn(this.weight)
     //			console.log('proper weight');
 //    			console.warn(this.state.weight);
 
@@ -128,6 +136,7 @@ export default class ProcessArduino2 extends Component {
             }else if(data[0] === 'm'){
 //                console.warn('test');//wakeUpApp();
             }else{
+//                console.warn(data)
                 // this.setState({weight: this.buffer});
 
     //			console.warn('buffered set');
@@ -152,6 +161,11 @@ export default class ProcessArduino2 extends Component {
                     }
                 }
             });
+        }
+        handleRead = (data) =>{
+            console.warn(data)
+            data = data.data;
+            console.warn(data);
         }
         ///It initializes by adding listeners. But it seems like DeviceEventEmitter is not even noticing detached devices
         ///Maybe it's listening to the wrong thing
@@ -204,7 +218,7 @@ export default class ProcessArduino2 extends Component {
                        formData.append(fieldNames.Timestamp, this.state.curTime);
                        formData.append(fieldNames.Weight, '' + this.state.weight);
                        formData.append(fieldNames.SubjectID, this.state.subjectID);
-                       SheetsExport(formData); //This uploads to the internet.
+//                       SheetsExport(formData); //This uploads to the internet.
 
                     },1000)
                 DeviceEventEmitter.addListener('onServiceStarted', this.onServiceStarted, this);
@@ -219,14 +233,27 @@ export default class ProcessArduino2 extends Component {
                 DeviceEventEmitter.addListener('onReadDataFromPort', (data)=>this.onReadData(data), this);
 
 //                 Added listeners
-                 RNSerialport.setAutoConnect(true); ///Making it autoconnect true allows very quick readings back on the Arduino.
-                 RNSerialport.startUsbService();
+//                 RNSerialport.setAutoConnect(true); ///Making it autoconnect true allows very quick readings back on the Arduino.
+//                 RNSerialport.startUsbService();
+//                 console.warn(this.BTdeviceID)
+//                 RNBluetoothClassic.connect(this.BTdeviceID)
+//                       .then(() => {
+//                         // Success code
+//                         console.warn('Connected');
+//                       })
+//                       .catch((error) => {
+//                         // Failure code
+//                         console.warn(error);
+//                       });
+                 this.onRead = RNBluetoothClassic.addListener(BTEvents.READ, (data)=>this.onReadData(data), this);
         }
     //Make sure to unmount the Arduino SerialPort everytime else it will absolutely fail
     componentWillUnmount() {
         DeviceEventEmitter.removeAllListeners();
         RNSerialport.stopUsbService();
         clearInterval(this.myInterval);
+        this.onRead.remove();//
+        RNBluetoothClassic.disconnect();
     }
     static navigationOptions = {
             header:null
@@ -261,7 +288,22 @@ export default class ProcessArduino2 extends Component {
         RNFetchBlob.fs.appendFile(pathToWrite, csvString, 'utf8')
 
     }
+    test = () =>{
+    //    device. =
 
+        RNBluetoothClassic.connect(deviceID)
+          .then(() => {
+            // Success code
+            console.warn('Connected');
+          })
+          .catch((error) => {
+            // Failure code
+    //        const readCharacteristic =  device.readCharacteristicForService(deviceID);
+            console.warn(error);
+          });
+    //    const readCharacteristic = await device.readCharacteristicForService(deviceID); // assuming the device is already connected
+    //     const heightInCentimeters = Buffer.from(readCharacteristic.value, 'base64').readUInt16LE(0);
+      }
 //    //Does an HTTPS update to a Google Forms. Plans to do afetch to Google Sheets API v4 later
 //    //With proper authentication
 //    sheetsExport = (formData) => {
@@ -313,7 +355,7 @@ export default class ProcessArduino2 extends Component {
 
                 {/*This allows the researcher to input a comment to upload'*/}
                 <View style={styles.invisViewRight}>
-                    <TouchableHighlight style={styles.invisButton} onPress={this.checkComment}><Text></Text></TouchableHighlight>
+                    <TouchableHighlight style={styles.invisButton} onPress={this.test}><Text></Text></TouchableHighlight>
                 </View>
 
 			</View>
