@@ -15,7 +15,9 @@ import {PermissionsAndroid} from 'react-native';
 import {requestAppPermissions} from './UIcomponents/requestAppPermissions'
 //////import ExportGoogleSheets from './UIcomponents/ExportGoogleSheets'
 //import TestGETForm from './UIcomponents/TestGETForm'
+import BluetoothReader from './UIcomponents/BluetoothReader'
 import {Device} from 'react-native-ble-plx';
+
 const MainNavigator = createStackNavigator({
             HomeScreen,DevOptions, ProcessArduino2, OperatorPassword, OperatorComment},
             //Start the application on the HomeScreen
@@ -53,7 +55,8 @@ export default class App extends Component{
         return (
                     //<TestGETForm/>
 //                    <Text> yup </Text>
-                   <AppContainer/>
+//                   <AppContainer/>
+                    <BluetoothReader/>
                    ///clientid: 819216036500-mtq03qrsu1l3aolhnvs3m9d7ilavc38r.apps.googleusercontent.com
                    //clientsecret:YxZSHsOrabCfmlN7zvRXSO2F
             )

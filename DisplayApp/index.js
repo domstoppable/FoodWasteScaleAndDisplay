@@ -25,3 +25,25 @@ global.weightlog = 996
     // );
   // }
 // }
+
+//
+//import { BleManager } from 'react-native-ble-plx';
+//
+//export const create = () => {
+//  ble = new BleManager();
+//};
+//
+//export const setLogLevel = logLevel => {
+//  ble.setLogLevel(logLevel);
+//};
+//
+//export const restart = () => {
+//  ble.destroy();
+//  create();
+//};
+//
+//export const cancelConnection = machineId => ble.cancelDeviceConnection(machineId);
+//
+//create();
+//
+//export let ble;

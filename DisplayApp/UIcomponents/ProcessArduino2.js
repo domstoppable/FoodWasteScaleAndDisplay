@@ -204,7 +204,7 @@ export default class ProcessArduino2 extends Component {
                        formData.append(fieldNames.Timestamp, this.state.curTime);
                        formData.append(fieldNames.Weight, '' + this.state.weight);
                        formData.append(fieldNames.SubjectID, this.state.subjectID);
-//                       SheetsExport(formData); //This uploads to the internet.
+                       SheetsExport(formData); //This uploads to the internet.
 
                     },1000)
                 DeviceEventEmitter.addListener('onServiceStarted', this.onServiceStarted, this);
