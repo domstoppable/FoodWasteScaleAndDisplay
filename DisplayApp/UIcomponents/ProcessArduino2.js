@@ -39,7 +39,7 @@ const fieldNames_Totals = {
     'Comments': 'name="entry.1955302934"',
     'formURI': 'https://docs.google.com/forms/d/e/1FAIpQLSeTDymPxm1ImYeMFVAtduGSDAq8sf9VpwZa737BCtRHqzFFzA/formResponse'};
 
- const threshWeight = 10; //10 grams/s. Arduino is parsing every 1s
+ const threshWeight = 10/454; //10 grams/s. Arduino is parsing every 1s
 export default class ProcessArduino2 extends Component {
 	constructor(){
 		super();
@@ -134,12 +134,14 @@ export default class ProcessArduino2 extends Component {
             var checksec = new Date().getSeconds(); //Current Seconds
             var checkTime = checkmin*60 + checksec;
             var diffTime = checkTime - this.state.lastChange;
-    		if((newWeight - oldWeight) > threshWeight && diffTime > 30){ //&& this.lastChange > 30s theoretically
+//            console.warn(diffTime)
+//            console.warn((newWeight - oldWeight))
+    		if((newWeight - oldWeight) < -threshWeight && diffTime > 10){ //&& this.lastChange > 30s theoretically
     		    console.warn('Significant weight change detected')
     		    //Prompt the user to press a button to indicate whether this weight change was intentional
-    		    this.props.navigation.navigate('WeightChangePrompt', {onSelect: this.onSelect});
+    		    this.props.navigation.navigate('WeightChangePrompt', {onSelect: this.onSelect, curWeight: this.state.weight});
                 ///Something will be done in WeightChangePrompt to the weight. In reality we will be fixing the weight state
-
+                this.setState({lastChange: checkTime})
     		}
 //            for(let i=0; i<data.length; i++){
 //                let character = String.fromCharCode(data[i]);
@@ -161,9 +163,13 @@ export default class ProcessArduino2 extends Component {
 
             }else if(data[0] === 'm'){
 //                console.warn('test');//wakeUpApp();
-            }else{
-//                console.warn(data)
+            }else if(data[0] === 'R'){
+                ToastAndroid.show('Successfully Tared!', 500);
 
+            }else if(data[0] === 'A'){
+                         ToastAndroid.show('Successfully Increased!', 100);
+            }else if(data[0] === 'Z'){
+                         ToastAndroid.show('Successfully Decreased!', 100);
             }
         }
 
@@ -244,11 +250,10 @@ export default class ProcessArduino2 extends Component {
                 this.localUploadInterval = setInterval( () => {this.localExport,5000});
                 this.sheetsUploadInterval = setInterval( () => {
                    var formData = new FormData();
-                   formData.append(fieldNames_Totals.Timestamp, this.state.curTime);
-                   formData.append(fieldNames_Totals.Weight, '' + this.state.weight);
-                   formData.append(fieldNames_Totals.SubjectID, this.state.subjectID);
-                   console.warn(this.state.subjectID);
-                   SheetsExport(fieldNames_Totals.formURI, formData)
+                   formData.append(fieldNames.Timestamp, this.state.curTime);
+                   formData.append(fieldNames.Weight, '' + this.state.weight);
+                   formData.append(fieldNames.SubjectID, this.state.subjectID);
+                   SheetsExport(fieldNames.formURI, formData)
 
                    }, 10000);
 
@@ -256,7 +261,7 @@ export default class ProcessArduino2 extends Component {
                  RNBluetoothClassic.connect(this.state.BTdeviceID)
                        .then(() => {
                          // Success code
-                         console.warn('Connected');
+                         ToastAndroid.show('Bluetooth Connected!', 1500);
                        })
                        .catch((error) => {
                          // Failure code
@@ -267,8 +272,6 @@ export default class ProcessArduino2 extends Component {
         }
     //Make sure to unmount the Arduino SerialPort everytime else it will absolutely fail
     componentWillUnmount() {
-        DeviceEventEmitter.removeAllListeners();
-        RNSerialport.stopUsbService();
         clearInterval(this.myInterval);
         this.onRead.remove();//
         RNBluetoothClassic.disconnect();
@@ -332,9 +335,6 @@ export default class ProcessArduino2 extends Component {
             now.getMonth(),
             now.getDate() + 1,0,0,0);
         var msToMidnight = night.getTime() - now.getTime();
-        console.warn(now.getTime())
-        console.warn(night.getTime())
-        console.warn(msToMidnight)
         setTimeout(() => {
             this.resetFunc();
             this.resetAtMidnight();
@@ -410,6 +410,11 @@ export default class ProcessArduino2 extends Component {
                 </View>
 
                 {/*This allows the user to tare the weights. Should ask for verification first*/}
+                <View style={styles.invisViewTopLeft}>
+                                    <TouchableHighlight style={styles.invisButton} onPress={this.tareWeights}><Text></Text></TouchableHighlight>
+                </View>
+
+                {/*This allows the user to have a debug button*/}
                 <View style={styles.invisViewTopRight}>
                                     <TouchableHighlight style={styles.invisButton} onPress={this.testChange}><Text></Text></TouchableHighlight>
                 </View>
@@ -423,7 +428,7 @@ export default class ProcessArduino2 extends Component {
                 return <Text style={styles.value}>{this.state.date}</Text>
 
             } else if (displayType == 'Numeric'){
-                return <Text style={styles.value}>{"\n"}{this.state.weight + this.state.weightOffset} {"\n"} {this.state.curTime}</Text>
+                return <Text style={styles.value}>{"\n"}{Number(this.state.weight)- this.state.weightOffset} {"\n"} {this.state.curTime}</Text>
 
             } else if (displayType == 'Metaphoric'){
                 return <Text style={styles.value}>{"\n"} Something metaphorical </Text>
@@ -486,24 +491,33 @@ const styles = StyleSheet.create({
               width: "100%",
               },
     invisViewRight: {
-                  position: 'absolute',
-                  top: "90%",
-                  left: "90%",
-                  zIndex: 50,
-                  backgroundColor: '#fff',
-                  height: "100%",
-                  width: "100%",
-                  },
+              position: 'absolute',
+              top: "90%",
+              left: "90%",
+              zIndex: 50,
+              backgroundColor: '#fff',
+              height: "100%",
+              width: "100%",
+              },
 
     invisViewTopRight: {
-                      position: 'absolute',
-                      bottom: "90%",
-                      left: "90%",
-                      zIndex: 50,
-                      backgroundColor: '#fff',
-                      height: "100%",
-                      width: "100%",
-                      },
+              position: 'absolute',
+              bottom: "90%",
+              left: "90%",
+              zIndex: 50,
+              backgroundColor: '#fff',
+              height: "100%",
+              width: "100%",
+              },
+    invisViewTopLeft: {
+              position: 'absolute',
+              bottom: "90%",
+              right: "90%",
+              zIndex: 50,
+              backgroundColor: '#fff',
+              height: "100%",
+              width: "100%",
+              },
     invisButton: {
               height: "100%",
               padding: 0,

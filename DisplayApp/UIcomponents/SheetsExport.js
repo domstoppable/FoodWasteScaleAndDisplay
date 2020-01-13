@@ -19,7 +19,7 @@ export const SheetsExport = (formURI, formData) => {
     		if(responseBody.indexOf('Your response has been recorded.') === -1){
     			throw new Error('Unexpected response');
     		}else{
-    			ToastAndroid.show('Data uploaded!', 3000);
+//    			ToastAndroid.show('Data uploaded!', 3000);
     		}
     	}).catch(exception => {
     		console.error('Error while submitting data', exception);

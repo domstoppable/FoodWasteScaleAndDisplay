@@ -15,10 +15,10 @@ export async function requestAppPermissions() {
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
 //      console.warn('You can write');
     } else {
-      console.warn(granted);
+//      console.warn(granted);
     }
   } catch (err) {
-    console.warn(err);
+//    console.warn(err);
   }
   try {
       const granted = await PermissionsAndroid.request(
@@ -34,10 +34,10 @@ export async function requestAppPermissions() {
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
 //        console.warn('You can use the camera');
       } else {
-        console.warn(granted);
+//        console.warn(granted);
       }
     } catch (err) {
-      console.warn(err);
+//      console.warn(err);
     }
   try {
         const granted = await PermissionsAndroid.request(
@@ -56,6 +56,6 @@ export async function requestAppPermissions() {
           console.warn(granted);
         }
       } catch (err) {
-        console.warn(err);
+//        console.warn(err);
       }
 }

@@ -46,6 +46,17 @@ export default class HomeScreen extends Component {
             			<Text>Pick Display Type</Text>
             </TouchableHighlight>
 
+
+
+        </View>
+
+        <View style={styles2.container_col}>
+            <TouchableHighlight style={styles2.button} onPress={()=> navigate('CalibrationMenu', {displayType:'', connected_test})}>
+                        <Text>Calibrations</Text>
+            </TouchableHighlight>
+
+
+
         </View>
         {/*Button in the bottom left. Need to tap 6 times to open*/}
         <View style={styles2.invisView}>

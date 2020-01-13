@@ -34,7 +34,7 @@ export default class WeightChangePrompt extends Component {
 
       //If true, do nothing.
        //Do something
-       navigation.state.params.onSelect({weightOffset: this.state.weight})
+       navigation.state.params.onSelect({weightOffset: Number('0.44')})
 
   }
   checkNo = () => {
@@ -67,7 +67,7 @@ export default class WeightChangePrompt extends Component {
     const {goBack} = this.props.navigation;
     displayType = this.state.paramstest;
     const connected_test = this.props.navigation.getParam('connected_test', 0);
-
+    const curWeight = this.props.navigation.getParam('curWeight', 0);
 //    const input_password = '';
     return (
     //Buttons should be placed in Views so that they can be more modular
