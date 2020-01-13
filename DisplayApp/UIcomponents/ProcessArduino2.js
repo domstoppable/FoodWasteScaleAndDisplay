@@ -314,8 +314,6 @@ export default class ProcessArduino2 extends Component {
 
         // construct csvString
         const csvString = this.state.subjectID + ',' + this.state.dateWrite + ',' +this.state.weight + ',' + 'Logging the Weight' + '\n';
-        // pathToWrite /storage/emulated/0/Download/A4.csv
-
         RNFS.appendFile(pathToWrite, csvString, 'utf8')
 
     }
@@ -331,10 +329,12 @@ export default class ProcessArduino2 extends Component {
         //Need to figure out how to properly get the next night
         var night = new Date(
             now.getFullYear(),
-            now.getMonth,
+            now.getMonth(),
             now.getDate() + 1,0,0,0);
         var msToMidnight = night.getTime() - now.getTime();
         console.warn(now.getTime())
+        console.warn(night.getTime())
+        console.warn(msToMidnight)
         setTimeout(() => {
             this.resetFunc();
             this.resetAtMidnight();
