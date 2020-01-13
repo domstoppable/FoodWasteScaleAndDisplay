@@ -2,30 +2,44 @@ import React, {Component} from 'react';
 import {Picker, StyleSheet, Text, View, Button, TouchableHighlight} from 'react-native';
 import HomeScreen from './HomeScreen.js';
 import DevOptions from './DevOptions';
+import WeightChangePrompt from './WeightChangePrompt';
 import {RNSerialport, definitions, actions} from 'react-native-serialport';
 import {DeviceEventEmitter} from 'react-native';
+
 import GLOBAL from './Globals'
-//import RNFetchBlob from 'react-native-fetch-blob';
+//import RNFetchBlob from 'rn-native-fetch-blob';
 import GoogleSheet, { batchGet, append } from 'react-native-google-sheet';
 import ExportGoogleSheets from './ExportGoogleSheets'
 import {ToastAndroid } from 'react-native';
 import {SheetsExport} from './SheetsExport';
 import RNBluetoothClassic, { BTEvents } from 'react-native-bluetooth-classic';
+import RNFS from "react-native-fs";
 
 const spreadsheetId = '1hLF01Bkc8HvhI3VE3bKnMK-MFCzOwic2s9h36uOPV3Y'
 const formURI = 'https://docs.google.com/forms/d/1bdTauz1McigC98QHIEo_4jvB75s0sQBC3SdQrE30xuQ/formResponse';
 const sheetsURI = 'https://sheets.googleapis.com/v4/spreadsheets/' + spreadsheetId + ':append';
 // write the current list of answers to a local csv file
-//const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/A3.csv`;
+//const pathToWrite = `${RNFS.DocumentDirectoryPath}/A3.csv`;
+const pathToWrite = '/storage/emulated/0/Download/' + '/A4.csv';
 //const fieldNames = GLOBAL.fieldNames;
 const fieldNames = {
     'Timestamp': 'entry.1812376040',
     'Weight': 'entry.21551981',
     'SubjectID': 'entry.757893397',
     'Comments': 'entry.1385450040',
+    'formURI' : 'https://docs.google.com/forms/d/1bdTauz1McigC98QHIEo_4jvB75s0sQBC3SdQrE30xuQ/formResponse'
+
     };
 
+const fieldNames_Totals = {
+    'Timestamp': 'entry.216516471',
+    'Date': 'entry.216516471',
+    'Weight': 'entry.1993824366',
+    'SubjectID': 'entry.1508379772',
+    'Comments': 'name="entry.1955302934"',
+    'formURI': 'https://docs.google.com/forms/d/e/1FAIpQLSeTDymPxm1ImYeMFVAtduGSDAq8sf9VpwZa737BCtRHqzFFzA/formResponse'};
 
+ const threshWeight = 10; //10 grams/s. Arduino is parsing every 1s
 export default class ProcessArduino2 extends Component {
 	constructor(){
 		super();
@@ -37,13 +51,18 @@ export default class ProcessArduino2 extends Component {
             init_text: 'Initializing...',
             weight: null,
             date: '',
+            weightCheckInterval: 0,
             curTime: '',
             tapsPassword:0,
             tapsComment:0,
+            tapsTare:0,
             myInterval:null,
             date: '',
             dateWrite: '',
             subjectID: 'Subject 1',
+            weightOffset: 0,
+            toResetWeight: 1,
+
             // If modifying these scopes, delete token.json.
             SCOPES: ['https://www.googleapis.com/auth/spreadsheets'],
             // The file token.json stores the user's access and refresh tokens, and is
@@ -106,10 +125,22 @@ export default class ProcessArduino2 extends Component {
 
         onReadData = (data)=>{
             data = data.data;
-//    		console.warn('reading data!!!');
-//    		console.warn(data.length)
-//    		console.warn(data)
+
+            oldWeight = this.state.weight;
     		this.processData(data)
+    		newWeight = this.state.weight;
+    		//Checking on a slope of 10g/s
+    		var checkmin = new Date().getMinutes(); //Current Minutes
+            var checksec = new Date().getSeconds(); //Current Seconds
+            var checkTime = checkmin*60 + checksec;
+            var diffTime = checkTime - this.state.lastChange;
+    		if((newWeight - oldWeight) > threshWeight && diffTime > 30){ //&& this.lastChange > 30s theoretically
+    		    console.warn('Significant weight change detected')
+    		    //Prompt the user to press a button to indicate whether this weight change was intentional
+    		    this.props.navigation.navigate('WeightChangePrompt', {onSelect: this.onSelect});
+                ///Something will be done in WeightChangePrompt to the weight. In reality we will be fixing the weight state
+
+    		}
 //            for(let i=0; i<data.length; i++){
 //                let character = String.fromCharCode(data[i]);
 //                if(character === '\n' || character === '\r'){
@@ -127,20 +158,12 @@ export default class ProcessArduino2 extends Component {
     //		console.log('processing data');
             if(data[0] === 'w'){
                 this.setState({weight: data.substring(1)})
-//                this.setState({weight: this.buffer.substring(1)});
-//                console.warn(this.weight)
-    //			console.log('proper weight');
-//    			console.warn(this.state.weight);
 
-    //			console.log('recorded proper weight');
             }else if(data[0] === 'm'){
 //                console.warn('test');//wakeUpApp();
             }else{
 //                console.warn(data)
-                // this.setState({weight: this.buffer});
 
-    //			console.warn('buffered set');
-    //			console.warn(this.state.weight);
             }
         }
 
@@ -162,11 +185,7 @@ export default class ProcessArduino2 extends Component {
                 }
             });
         }
-        handleRead = (data) =>{
-            console.warn(data)
-            data = data.data;
-            console.warn(data);
-        }
+
         ///It initializes by adding listeners. But it seems like DeviceEventEmitter is not even noticing detached devices
         ///Maybe it's listening to the wrong thing
         componentDidMount() {
@@ -181,6 +200,7 @@ export default class ProcessArduino2 extends Component {
                 var hours = new Date().getHours(); //Current Hours
                 var min = new Date().getMinutes(); //Current Minutes
                 var sec = new Date().getSeconds(); //Current Seconds
+                this.setState({lastChange: min*60+sec})
                 var AMPM = '';
                 var day_string = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
                 this.myInterval = setInterval( () => {
@@ -212,40 +232,38 @@ export default class ProcessArduino2 extends Component {
 
                        this.setState({date: day_string[day] +  ', ' + month + '/' + date + '/' + year + '\n' + hours + ':' + min + ' ' + AMPM });
                        this.setState({dateWrite: day_string[day] +  '\t'  + month + '/' + date + '/' + year + '\t' + hours + ':' + min + ' ' + AMPM });
-//                       this.localExport(); //This uploads to a local data.csv file.
+                       this.localExport(); //This uploads to a local data.csv file.
 
-                       var formData = new FormData();
-                       formData.append(fieldNames.Timestamp, this.state.curTime);
-                       formData.append(fieldNames.Weight, '' + this.state.weight);
-                       formData.append(fieldNames.SubjectID, this.state.subjectID);
+//                       var formData = new FormData();
+//                       formData.append(fieldNames.Timestamp, this.state.curTime);
+//                       formData.append(fieldNames.Weight, '' + this.state.weight);
+//                       formData.append(fieldNames.SubjectID, this.state.subjectID);
 //                       SheetsExport(formData); //This uploads to the internet.
 
                     },1000)
-                DeviceEventEmitter.addListener('onServiceStarted', this.onServiceStarted, this);
-                DeviceEventEmitter.addListener('onServiceStopped', this.onServiceStopped,this);
-                DeviceEventEmitter.addListener('onDeviceAttached', this.onUsbAttached, this);
-                DeviceEventEmitter.addListener('onDeviceDetached', this.onUsbDetached, this);
-                DeviceEventEmitter.addListener('onDeviceNotSupported', this.onUsbNotSupported, this);
-                DeviceEventEmitter.addListener('onError', this.onError, this);
-                DeviceEventEmitter.addListener('onConnected', this.onConnectedDevice, this);
-                DeviceEventEmitter.addListener('onDisconnected', this.onDisconnectedDevice, this);
+                this.localUploadInterval = setInterval( () => {this.localExport,5000});
+                this.sheetsUploadInterval = setInterval( () => {
+                   var formData = new FormData();
+                   formData.append(fieldNames_Totals.Timestamp, this.state.curTime);
+                   formData.append(fieldNames_Totals.Weight, '' + this.state.weight);
+                   formData.append(fieldNames_Totals.SubjectID, this.state.subjectID);
+                   console.warn(this.state.subjectID);
+                   SheetsExport(fieldNames_Totals.formURI, formData)
 
-                DeviceEventEmitter.addListener('onReadDataFromPort', (data)=>this.onReadData(data), this);
+                   }, 10000);
 
-//                 Added listeners
-//                 RNSerialport.setAutoConnect(true); ///Making it autoconnect true allows very quick readings back on the Arduino.
-//                 RNSerialport.startUsbService();
-//                 console.warn(this.BTdeviceID)
-//                 RNBluetoothClassic.connect(this.BTdeviceID)
-//                       .then(() => {
-//                         // Success code
-//                         console.warn('Connected');
-//                       })
-//                       .catch((error) => {
-//                         // Failure code
-//                         console.warn(error);
-//                       });
+                 RNBluetoothClassic.disconnect();
+                 RNBluetoothClassic.connect(this.state.BTdeviceID)
+                       .then(() => {
+                         // Success code
+                         console.warn('Connected');
+                       })
+                       .catch((error) => {
+                         // Failure code
+                         console.warn(error);
+                       });
                  this.onRead = RNBluetoothClassic.addListener(BTEvents.READ, (data)=>this.onReadData(data), this);
+                 this.resetAtMidnight();
         }
     //Make sure to unmount the Arduino SerialPort everytime else it will absolutely fail
     componentWillUnmount() {
@@ -258,10 +276,22 @@ export default class ProcessArduino2 extends Component {
     static navigationOptions = {
             header:null
           };
+
+    tareWeights = () =>{
+
+        numTaps = this.state.tapsTare;
+          if(numTaps >= 10){
+              RNBluetoothClassic.write('t')
+              this.setState({tapsTare:0})
+          }
+          else{
+              this.setState({tapsTare: numTaps+1})
+          }
+    }
     checkPassword = () => {
           numTaps = this.state.tapsPassword;
           if(numTaps >= 5){
-              this.setState({taps:0})
+              this.setState({tapsPassword:0})
               this.props.navigation.navigate('OperatorPassword');
           }
           else{
@@ -284,14 +314,40 @@ export default class ProcessArduino2 extends Component {
 
         // construct csvString
         const csvString = this.state.subjectID + ',' + this.state.dateWrite + ',' +this.state.weight + ',' + 'Logging the Weight' + '\n';
-        // pathToWrite /storage/emulated/0/Download/data.csv
-        RNFetchBlob.fs.appendFile(pathToWrite, csvString, 'utf8')
+        // pathToWrite /storage/emulated/0/Download/A4.csv
+
+        RNFS.appendFile(pathToWrite, csvString, 'utf8')
 
     }
+
+    //This is called every midnight
+    resetFunc = () => {
+        console.warn('reset function called')
+        this.setState({weightOffset: this.state.weight});
+
+    }
+    resetAtMidnight = () =>{
+        var now = new Date();
+        //Need to figure out how to properly get the next night
+        var night = new Date(
+            now.getFullYear(),
+            now.getMonth,
+            now.getDate() + 1,0,0,0);
+        var msToMidnight = night.getTime() - now.getTime();
+        console.warn(now.getTime())
+        setTimeout(() => {
+            this.resetFunc();
+            this.resetAtMidnight();
+            }, msToMidnight);
+    }
+
+
+
+
     test = () =>{
     //    device. =
 
-        RNBluetoothClassic.connect(deviceID)
+        RNBluetoothClassic.connect(this.state.BTdeviceID)
           .then(() => {
             // Success code
             console.warn('Connected');
@@ -304,31 +360,25 @@ export default class ProcessArduino2 extends Component {
     //    const readCharacteristic = await device.readCharacteristicForService(deviceID); // assuming the device is already connected
     //     const heightInCentimeters = Buffer.from(readCharacteristic.value, 'base64').readUInt16LE(0);
       }
-//    //Does an HTTPS update to a Google Forms. Plans to do afetch to Google Sheets API v4 later
-//    //With proper authentication
-//    sheetsExport = (formData) => {
-//
-//    	fetch(formURI, {
-//    		method: 'POST',
-//    		body: formData,
-//    	}).then(response => {
-//    		if(response.ok){
-//    			return response.text();
-//    		}else{
-//    			console.log(response);
-//    			throw new Error('Request failed');
-//    		}
-//    	}).then(responseBody => {
-//    		if(responseBody.indexOf('Your response has been recorded.') === -1){
-//    			throw new Error('Unexpected response');
-//    		}else{
-//    			ToastAndroid.show('Data uploaded!', 3000);
-//    		}
-//    	}).catch(exception => {
-//    		console.error('Error while submitting data', exception);
-//    		ToastAndroid.show('Error while submitting data: ' + exception);
-//    	});
-//    }
+      testChange = () => {
+
+        this.props.navigation.navigate('WeightChangePrompt', {onSelect: this.onSelect})
+      }
+      testDisconnect = () =>{
+
+        RNBluetoothClassic.disconnect()
+        .then(() => {
+                    // Success code
+                    console.warn('Disconnected');
+                  })
+                  .catch((error) => {
+                    // Failure code
+            //        const readCharacteristic =  device.readCharacteristicForService(deviceID);
+                    console.warn(error);
+                  });
+
+      }
+
     onSelect = data => {
         this.setState(data);
       };
@@ -343,6 +393,7 @@ export default class ProcessArduino2 extends Component {
         const curWeight = this.props.navigation.getParam('curWeight', 0)
         const displayType = this.props.navigation.getParam('displayType', 0)
         const commentOutput = this.props.navigation.getParam('commentOutput', '');
+        const weightChangeDecision = this.props.navigation.getParam('weightChangeDecision', 0)
 		return (
 			<View style={styles.container}>
 
@@ -355,9 +406,13 @@ export default class ProcessArduino2 extends Component {
 
                 {/*This allows the researcher to input a comment to upload'*/}
                 <View style={styles.invisViewRight}>
-                    <TouchableHighlight style={styles.invisButton} onPress={this.test}><Text></Text></TouchableHighlight>
+                    <TouchableHighlight style={styles.invisButton} onPress={this.checkComment}><Text></Text></TouchableHighlight>
                 </View>
 
+                {/*This allows the user to tare the weights. Should ask for verification first*/}
+                <View style={styles.invisViewTopRight}>
+                                    <TouchableHighlight style={styles.invisButton} onPress={this.testChange}><Text></Text></TouchableHighlight>
+                </View>
 			</View>
 		);
 	}
@@ -368,13 +423,13 @@ export default class ProcessArduino2 extends Component {
                 return <Text style={styles.value}>{this.state.date}</Text>
 
             } else if (displayType == 'Numeric'){
-                return <Text style={styles.value}>{displayType} {"\n"}{this.state.weight} {"\n"} {this.state.curTime}</Text>
+                return <Text style={styles.value}>{"\n"}{this.state.weight + this.state.weightOffset} {"\n"} {this.state.curTime}</Text>
 
             } else if (displayType == 'Metaphoric'){
-                return <Text style={styles.value}>{displayType} {"\n"} Something metaphorical </Text>
+                return <Text style={styles.value}>{"\n"} Something metaphorical </Text>
 
             } else if (displayType == 'Ambient'){
-                return <Text style={styles.value}>{displayType} {"\n"} Something ambient </Text>
+                return <Text style={styles.value}>{"\n"} Something ambient </Text>
 
             } else {
 
@@ -439,6 +494,16 @@ const styles = StyleSheet.create({
                   height: "100%",
                   width: "100%",
                   },
+
+    invisViewTopRight: {
+                      position: 'absolute',
+                      bottom: "90%",
+                      left: "90%",
+                      zIndex: 50,
+                      backgroundColor: '#fff',
+                      height: "100%",
+                      width: "100%",
+                      },
     invisButton: {
               height: "100%",
               padding: 0,

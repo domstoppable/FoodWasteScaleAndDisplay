@@ -4,9 +4,7 @@ import {ToastAndroid } from 'react-native';
 
 //Does an HTTPS update to a Google Forms. Plans to do afetch to Google Sheets API v4 later
 //With proper authentication
-export const SheetsExport = (formData) => {
-        const formURI = 'https://docs.google.com/forms/d/1bdTauz1McigC98QHIEo_4jvB75s0sQBC3SdQrE30xuQ/formResponse';
-
+export const SheetsExport = (formURI, formData) => {
     	fetch(formURI, {
     		method: 'POST',
     		body: formData,

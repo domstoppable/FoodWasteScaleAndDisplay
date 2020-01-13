@@ -43,6 +43,8 @@
 		F6443C00CBA24A648E1B73D6 /* libRNGestureHandler-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CAADBC9366B7424AA35EB6BE /* libRNGestureHandler-tvOS.a */; };
 		A0BCB51EE35040048831E716 /* libBleClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 29C4DF72BFFA4466B8932321 /* libBleClient.a */; };
 		26EB3C7165BF47EDB8EA5BA3 /* libRNBluetoothClassic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 158B7D3470624D71891FF4D9 /* libRNBluetoothClassic.a */; };
+		4B0B86246B1D4D25B9EF6F26 /* libRNFetchBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 903C75CCDB634E1089511C22 /* libRNFetchBlob.a */; };
+		F2726FD5D50D4953A3D339CC /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C31B633207734CD2936AF283 /* libRNFS.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -357,6 +359,10 @@
 		29C4DF72BFFA4466B8932321 /* libBleClient.a */ = {isa = PBXFileReference; name = "libBleClient.a"; path = "libBleClient.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		D8971818760B474E93737E57 /* RNBluetoothClassic.xcodeproj */ = {isa = PBXFileReference; name = "RNBluetoothClassic.xcodeproj"; path = "../node_modules/react-native-bluetooth-classic/ios/RNBluetoothClassic.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		158B7D3470624D71891FF4D9 /* libRNBluetoothClassic.a */ = {isa = PBXFileReference; name = "libRNBluetoothClassic.a"; path = "libRNBluetoothClassic.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		E0E3BDA03E9945BEA94BD21F /* RNFetchBlob.xcodeproj */ = {isa = PBXFileReference; name = "RNFetchBlob.xcodeproj"; path = "../node_modules/rn-fetch-blob/ios/RNFetchBlob.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		903C75CCDB634E1089511C22 /* libRNFetchBlob.a */ = {isa = PBXFileReference; name = "libRNFetchBlob.a"; path = "libRNFetchBlob.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		C2731BB6B62B4B58A7830C67 /* RNFS.xcodeproj */ = {isa = PBXFileReference; name = "RNFS.xcodeproj"; path = "../node_modules/react-native-fs/RNFS.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		C31B633207734CD2936AF283 /* libRNFS.a */ = {isa = PBXFileReference; name = "libRNFS.a"; path = "libRNFS.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -388,6 +394,8 @@
 				15600B9A67E44490A732E24E /* libRNGestureHandler.a in Frameworks */,
 				A0BCB51EE35040048831E716 /* libBleClient.a in Frameworks */,
 				26EB3C7165BF47EDB8EA5BA3 /* libRNBluetoothClassic.a in Frameworks */,
+				4B0B86246B1D4D25B9EF6F26 /* libRNFetchBlob.a in Frameworks */,
+				F2726FD5D50D4953A3D339CC /* libRNFS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -581,6 +589,8 @@
 				ADAF87B8106146BE9C3BE644 /* RNGestureHandler.xcodeproj */,
 				A3FF8A46A0D24B51BC417568 /* BleClient.xcodeproj */,
 				D8971818760B474E93737E57 /* RNBluetoothClassic.xcodeproj */,
+				E0E3BDA03E9945BEA94BD21F /* RNFetchBlob.xcodeproj */,
+				C2731BB6B62B4B58A7830C67 /* RNFS.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -1212,12 +1222,16 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)\..\node_modules\react-native-gesture-handler\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-ble-plx\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-bluetooth-classic\ios",
+					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Debug;
@@ -1243,12 +1257,16 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)\..\node_modules\react-native-gesture-handler\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-ble-plx\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-bluetooth-classic\ios",
+					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Release;
@@ -1274,6 +1292,8 @@
 					"$(SRCROOT)\..\node_modules\react-native-gesture-handler\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-ble-plx\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-bluetooth-classic\ios",
+					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Debug;
@@ -1298,6 +1318,8 @@
 					"$(SRCROOT)\..\node_modules\react-native-gesture-handler\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-ble-plx\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-bluetooth-classic\ios",
+					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Release;
@@ -1331,12 +1353,16 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)\..\node_modules\react-native-gesture-handler\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-ble-plx\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-bluetooth-classic\ios",
+					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Debug;
@@ -1370,12 +1396,16 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)\..\node_modules\react-native-gesture-handler\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-ble-plx\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-bluetooth-classic\ios",
+					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Release;
@@ -1408,12 +1438,16 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)\..\node_modules\react-native-gesture-handler\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-ble-plx\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-bluetooth-classic\ios",
+					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Debug;
@@ -1446,12 +1480,16 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)\..\node_modules\react-native-gesture-handler\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-ble-plx\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-bluetooth-classic\ios",
+					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Release;
