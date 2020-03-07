@@ -5,7 +5,7 @@ import DevOptions from './DevOptions';
 import WeightChangePrompt from './WeightChangePrompt';
 import {RNSerialport, definitions, actions} from 'react-native-serialport';
 import {DeviceEventEmitter} from 'react-native';
-
+import {Image} from 'react-native';
 import GLOBAL from './Globals'
 //import RNFetchBlob from 'rn-native-fetch-blob';
 import GoogleSheet, { batchGet, append } from 'react-native-google-sheet';
@@ -15,6 +15,7 @@ import {SheetsExport} from './SheetsExport';
 import RNBluetoothClassic, { BTEvents } from 'react-native-bluetooth-classic';
 import RNFS from "react-native-fs";
 
+const landfillDir = '../Landfill2/';
 const spreadsheetId = '1hLF01Bkc8HvhI3VE3bKnMK-MFCzOwic2s9h36uOPV3Y'
 const formURI = 'https://docs.google.com/forms/d/1bdTauz1McigC98QHIEo_4jvB75s0sQBC3SdQrE30xuQ/formResponse';
 const sheetsURI = 'https://sheets.googleapis.com/v4/spreadsheets/' + spreadsheetId + ':append';
@@ -39,89 +40,60 @@ const fieldNames_Totals = {
     'Comments': 'name="entry.1955302934"',
     'formURI': 'https://docs.google.com/forms/d/e/1FAIpQLSeTDymPxm1ImYeMFVAtduGSDAq8sf9VpwZa737BCtRHqzFFzA/formResponse'};
 
- const threshWeight = 10/454; //10 grams/s. Arduino is parsing every 1s
+const threshWeight = 400/454; //100 grams/s. Arduino is parsing every 1s
+const midnight = "0:00:00";
+//const garbage_vec = [-10, 0, 0.25, 0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 10];
+const garbage_vec = [-1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
+const imageVec = [require(landfillDir + '/1.png'),
+                  require(landfillDir + '/2.png'),
+                  require(landfillDir + '/3.png'),
+                  require(landfillDir + '/4.png'),
+                  require(landfillDir + '/5.png'),
+                  require(landfillDir + '/6.png'),
+                  require(landfillDir + '/7.png'),
+                  require(landfillDir + '/8.png'),
+                  require(landfillDir + '/9.png'),
+                  require(landfillDir + '/10.png'),
+                  require(landfillDir + '/11.png')];
+
 export default class ProcessArduino2 extends Component {
-	constructor(){
-		super();
-		this.state = {
-			data: undefined,
-			devices: [],
-			selectedDevice: null,
-			debug: null,
-            init_text: 'Initializing...',
-            weight: null,
-            date: '',
-            weightCheckInterval: 0,
-            curTime: '',
-            tapsPassword:0,
-            tapsComment:0,
-            tapsTare:0,
-            myInterval:null,
-            date: '',
-            dateWrite: '',
-            subjectID: 'Subject 1',
-            weightOffset: 0,
-            toResetWeight: 1,
+        constructor(){
+            super();
+            this.state = {
+                data: undefined,
+                devices: [],
+                selectedDevice: null,
+                debug: null,
+                init_text: 'Initializing...',
+                weight: null,
+                date: '',
+                weightCheckInterval: 0,
+                curTime: '',
+                tapsPassword:0,
+                tapsComment:0,
+                tapsTare:0,
+                myInterval:null,
+                date: '',
+                dateWrite: '',
+                subjectID: 'Subject 1',
+                weightOffset: 0,
+                toResetWeight: 1,
+                garbagePicture: require(landfillDir + '/1.png'),
+                oldGarbagePicture: require(landfillDir + '/1.png'),
+                // If modifying these scopes, delete token.json.
+                SCOPES: ['https://www.googleapis.com/auth/spreadsheets'],
+                // The file token.json stores the user's access and refresh tokens, and is
+                // created automatically when the authorization flow completes for the first
+                // time.
+                TOKEN_PATH: 'token.json',
+                //BTdeviceID: '00:14:03:06:2F:D9',
+                BTdeviceID: '00:14:03:06:32:6E',
 
-            // If modifying these scopes, delete token.json.
-            SCOPES: ['https://www.googleapis.com/auth/spreadsheets'],
-            // The file token.json stores the user's access and refresh tokens, and is
-            // created automatically when the authorization flow completes for the first
-            // time.
-            TOKEN_PATH: 'token.json',
-            BTdeviceID: '00:14:03:06:2F:D9',
-
-		};
-		this.buffer = '';
-	}
-
-    pickDevice = (device)=>{
-        		if(device){
-        			this.setState({selectedDevice:device});
-        		}
+            };
+            this.buffer = '';
         }
 
-        toggleConnection = ()=>{
-            if(this.state.connected){
-                RNSerialport.disconnect();
-                this.setState({connected:false});
-            }else{
-                let deviceName = this.state.selectedDevice.name;
-                let baudRate = 9600;
-                this.setState({connected:true});
-                RNSerialport.connectDevice(deviceName, baudRate);
-            }
-        }
 
-        onUsbAttached = ()=>{
-
-            this.getDeviceList();
-        }
-        onUsbDetached = ()=>{
-
-        }
-        onUsbNotSupported = ()=>{
-    //		console.warn('Usb not supported');
-        }
-        onError(error) {
-//            console.warn('Code: ' + error.errorCode + ' Message: ' +error.errorMessage)
-        }
-        onConnectedDevice = ()=>{
-    //		console.warn('Connected');
-
-            this.setState({connected:true});
-        }
-        onDisconnectedDevice = ()=>{
-    //		console.warn('Disconnected');
-            this.setState({connected:false});
-        }
-        onServiceStarted = ()=>{
-    //		console.warn('Service started');
-            this.getDeviceList();
-        }
-        onServiceStopped = ()=>{
-    //		console.warn('Service stopped');
-        }
 
         onReadData = (data)=>{
             data = data.data;
@@ -134,8 +106,7 @@ export default class ProcessArduino2 extends Component {
             var checksec = new Date().getSeconds(); //Current Seconds
             var checkTime = checkmin*60 + checksec;
             var diffTime = checkTime - this.state.lastChange;
-//            console.warn(diffTime)
-//            console.warn((newWeight - oldWeight))
+
     		if((newWeight - oldWeight) < -threshWeight && diffTime > 10){ //&& this.lastChange > 30s theoretically
     		    console.warn('Significant weight change detected')
     		    //Prompt the user to press a button to indicate whether this weight change was intentional
@@ -143,17 +114,14 @@ export default class ProcessArduino2 extends Component {
                 ///Something will be done in WeightChangePrompt to the weight. In reality we will be fixing the weight state
                 this.setState({lastChange: checkTime})
     		}
-//            for(let i=0; i<data.length; i++){
-//                let character = String.fromCharCode(data[i]);
-//                if(character === '\n' || character === '\r'){
-//                    if(this.buffer !== ''){
-//                        this.processData(this.buffer);
-//                    }
-//                    this.buffer = '';
-//                }else{
-//                    this.buffer += character;
-//                }
-//            }
+            for(i = 0; i < 11; i++){
+                if(newWeight > garbage_vec[i] & newWeight < garbage_vec[i+1]){
+                    this.setState({garbagePicture: imageVec[i+1]})
+                    this.setState({oldGarbagePicture: imageVec[i]})
+                    break;
+                }
+            }
+
         }
 
         processData = (data)=>{
@@ -173,24 +141,6 @@ export default class ProcessArduino2 extends Component {
             }
         }
 
-        getDeviceList = ()=>{
-            RNSerialport.getDeviceList(response => {
-                if(!response.status) {
-                    alert('Code: ' + response.errorCode + ' Message: ' +response.errorMessage);
-                    return;
-                }
-
-                this.setState({devices:response.devices});
-                this.setState({selectedDevice:response.devices[0]});
-                this.toggleConnection();
-                if(!Boolean(this.state.selectedDevice)){
-                    this.setState({selectedDevice:response.devices[0]});
-                    if(!this.state.connected){
-                        this.toggleConnection();
-                    }
-                }
-            });
-        }
 
         ///It initializes by adding listeners. But it seems like DeviceEventEmitter is not even noticing detached devices
         ///Maybe it's listening to the wrong thing
@@ -206,6 +156,7 @@ export default class ProcessArduino2 extends Component {
                 var hours = new Date().getHours(); //Current Hours
                 var min = new Date().getMinutes(); //Current Minutes
                 var sec = new Date().getSeconds(); //Current Seconds
+
                 this.setState({lastChange: min*60+sec})
                 var AMPM = '';
                 var day_string = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -238,7 +189,7 @@ export default class ProcessArduino2 extends Component {
 
                        this.setState({date: day_string[day] +  ', ' + month + '/' + date + '/' + year + '\n' + hours + ':' + min + ' ' + AMPM });
                        this.setState({dateWrite: day_string[day] +  '\t'  + month + '/' + date + '/' + year + '\t' + hours + ':' + min + ' ' + AMPM });
-                       this.localExport(); //This uploads to a local data.csv file.
+//                       this.localExport(); //This uploads to a local data.csv file.
 
 //                       var formData = new FormData();
 //                       formData.append(fieldNames.Timestamp, this.state.curTime);
@@ -247,15 +198,16 @@ export default class ProcessArduino2 extends Component {
 //                       SheetsExport(formData); //This uploads to the internet.
 
                     },1000)
-                this.localUploadInterval = setInterval( () => {this.localExport,5000});
-                this.sheetsUploadInterval = setInterval( () => {
-                   var formData = new FormData();
-                   formData.append(fieldNames.Timestamp, this.state.curTime);
-                   formData.append(fieldNames.Weight, '' + this.state.weight);
-                   formData.append(fieldNames.SubjectID, this.state.subjectID);
-                   SheetsExport(fieldNames.formURI, formData)
 
-                   }, 10000);
+                this.localUploadInterval = setInterval( () => {this.localExport,5000});
+//                this.sheetsUploadInterval = setInterval( () => {
+//                   var formData = new FormData();
+//                   formData.append(fieldNames.Timestamp, this.state.curTime);
+//                   formData.append(fieldNames.Weight, '' + this.state.weight);
+//                   formData.append(fieldNames.SubjectID, this.state.subjectID);
+//                   SheetsExport(fieldNames.formURI, formData)
+//
+//                   }, 10000);
 
                  RNBluetoothClassic.disconnect();
                  RNBluetoothClassic.connect(this.state.BTdeviceID)
@@ -268,11 +220,14 @@ export default class ProcessArduino2 extends Component {
                          console.warn(error);
                        });
                  this.onRead = RNBluetoothClassic.addListener(BTEvents.READ, (data)=>this.onReadData(data), this);
-                 this.resetAtMidnight();
+
+                 this.resetFunc();
         }
     //Make sure to unmount the Arduino SerialPort everytime else it will absolutely fail
     componentWillUnmount() {
         clearInterval(this.myInterval);
+        clearInterval(this.localUploadInterval);
+        clearInterval(this.sheetsUploadInterval);
         this.onRead.remove();//
         RNBluetoothClassic.disconnect();
     }
@@ -323,8 +278,17 @@ export default class ProcessArduino2 extends Component {
 
     //This is called every midnight
     resetFunc = () => {
-        console.warn('reset function called')
-        this.setState({weightOffset: this.state.weight});
+         var now = new Date();
+         var night = new Date(
+                     now.getFullYear(),
+                     now.getMonth(),
+                     now.getDate() + 1,0,0,0);
+         var msToMidnight = night.getTime() - now.getTime();
+         if(msToMidnight >= 0 && msToMidnight <= 1000){
+            console.warn('reset function called')
+            this.setState({weightOffset: this.state.weight});
+         }
+
 
     }
     resetAtMidnight = () =>{
@@ -396,8 +360,8 @@ export default class ProcessArduino2 extends Component {
         const weightChangeDecision = this.props.navigation.getParam('weightChangeDecision', 0)
 		return (
 			<View style={styles.container}>
-
-                <Text style={styles.value}>{this.displayScreenMessage(displayType)}</Text>
+                <Text style={styles.value}>{this.state.weight}</Text>
+                {this.displayScreenMessage(displayType)}
 
                 {/*This allows the researcher to go back to the Developer Screen*/}
                 <View style={styles.invisViewLeft}>
@@ -431,10 +395,10 @@ export default class ProcessArduino2 extends Component {
                 return <Text style={styles.value}>{"\n"}{Number(this.state.weight)- this.state.weightOffset} {"\n"} {this.state.curTime}</Text>
 
             } else if (displayType == 'Metaphoric'){
-                return <Text style={styles.value}>{"\n"} Something metaphorical </Text>
+                return <Image style={styles.garbageImage} fadeDuration={1} source={this.state.garbagePicture} defaultSource={this.state.oldGarbagePicture}/>
 
             } else if (displayType == 'Ambient'){
-                return <Text style={styles.value}>{"\n"} Something ambient </Text>
+                return <Image style={styles.garbageImage}  source={{uri:'../Landfill/Untitled.png'}}/>
 
             } else {
 
@@ -528,4 +492,10 @@ const styles = StyleSheet.create({
               alignItems: 'center',
               backgroundColor: '#F5FCFF',
               },
+    garbageImage: {
+            height: "100%",
+            width: "100%",
+            position:'absolute',
+            backfaceVisibility:'hidden',
+            },
 });

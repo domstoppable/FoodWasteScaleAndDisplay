@@ -17,13 +17,13 @@ export const SheetsExport = (formURI, formData) => {
     		}
     	}).then(responseBody => {
     		if(responseBody.indexOf('Your response has been recorded.') === -1){
-    			throw new Error('Unexpected response');
+//    			throw new Error('Unexpected response');
     		}else{
 //    			ToastAndroid.show('Data uploaded!', 3000);
     		}
     	}).catch(exception => {
-    		console.error('Error while submitting data', exception);
-    		ToastAndroid.show('Error while submitting data: ' + exception);
+//    		console.error('Error while submitting data', exception);
+    		ToastAndroid.show('Error while submitting data: ' + exception, 1500);
     	});
 };
 

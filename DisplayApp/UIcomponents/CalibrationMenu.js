@@ -22,7 +22,7 @@ export default class CalibrationMenu extends Component {
                       calibrationNum: null,
                       weight: 0,
                       BTconnected: false,
-                      BTdeviceID: '00:14:03:06:2F:D9'}//10 seconds timeout after no action
+                      BTdeviceID: '00:14:03:06:32:6E'}//10 seconds timeout after no action
     }
     // Somehow the title screen is read from navigationOptions
     //Difference of having navigations inside or outside render options?
@@ -80,7 +80,12 @@ export default class CalibrationMenu extends Component {
                      ToastAndroid.show('Successfully Increased!', ToastAndroid.SHORT);
         }else if(data[0] === 'Z'){
                      ToastAndroid.show('Successfully Decreased!', ToastAndroid.SHORT);
+        }else if(data[0] === 'g'){
+            this.setState({calibrationNum: data.substring(1)})
+
+            ToastAndroid.show('Found calibration...', ToastAndroid.SHORT)
         }
+
     }
     tareWeights = () =>{
           RNBluetoothClassic.write('t')
@@ -92,6 +97,7 @@ export default class CalibrationMenu extends Component {
 
                     RNFS.readFile(RNFS.DocumentDirectoryPath + '/configCal.txt', 'utf8')
                          .then((result) => {this.setState({calibrationNum: parseInt(result)})})
+
                 }
                 else{
                     RNFS.appendFile(RNFS.DocumentDirectoryPath + '/configCal.txt', '-5096', 'utf8')
@@ -108,6 +114,9 @@ export default class CalibrationMenu extends Component {
            .then(() => {
              // Success code
              this.setState({BTconnected:true})
+//             RNBluetoothClassic.write('g')
+             RNBluetoothClassic.write('h')
+             RNBluetoothClassic.write(this.state.calibrationNum.toString())
            })
            .catch((error) => {
              // Failure code

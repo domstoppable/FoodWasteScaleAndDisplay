@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import {Image} from 'react-native';
 import {Picker, StyleSheet, Text, View, Button, StatusBar} from 'react-native';
 import HomeScreen from './UIcomponents/HomeScreen';
 import DevOptions from './UIcomponents/DevOptions';
@@ -50,13 +51,17 @@ export default class App extends Component{
 	async componentDidMount(){
 	    StatusBar.setHidden(true);
 	    requestAppPermissions();
+	    console.disableYellowBox = true;
 	}
 
     render(){
 
         return (
                     //<TestGETForm/>
-//                    <Text> yup </Text>
+//                    <View>
+
+
+//                    </View>
                    <AppContainer/>
 //                    <BluetoothClassicReader/>
                    ///clientid: 819216036500-mtq03qrsu1l3aolhnvs3m9d7ilavc38r.apps.googleusercontent.com
