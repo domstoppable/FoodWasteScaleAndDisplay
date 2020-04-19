@@ -360,8 +360,8 @@ export default class ProcessArduino2 extends Component {
         const weightChangeDecision = this.props.navigation.getParam('weightChangeDecision', 0)
 		return (
 			<View style={styles.container}>
-                <Text style={styles.value}>{this.state.weight}</Text>
                 {this.displayScreenMessage(displayType)}
+
 
                 {/*This allows the researcher to go back to the Developer Screen*/}
                 <View style={styles.invisViewLeft}>

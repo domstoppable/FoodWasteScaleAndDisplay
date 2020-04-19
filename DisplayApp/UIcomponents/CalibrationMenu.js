@@ -117,6 +117,8 @@ export default class CalibrationMenu extends Component {
 //             RNBluetoothClassic.write('g')
              RNBluetoothClassic.write('h')
              RNBluetoothClassic.write(this.state.calibrationNum.toString())
+
+
            })
            .catch((error) => {
              // Failure code

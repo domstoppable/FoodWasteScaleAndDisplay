@@ -41,7 +41,7 @@ export default class HomeScreen extends Component {
     //Buttons should be placed in Views so that they can be more modular
     <View style={styles2.container}>
         <View style={styles2.container_col}>
-            <Text style={styles2.value}> Welcome to the Food Waste Scale!!!! </Text>
+            <Text style={styles2.value}> Welcome to the Food Waste Scale </Text>
             <TouchableHighlight style={styles2.button} onPress={()=> navigate('DevOptions', {displayType:'', connected_test})}>
             			<Text>Pick Display Type</Text>
             </TouchableHighlight>
@@ -111,7 +111,7 @@ const styles2 = StyleSheet.create({
     	    height: "20%",
     	    padding: 20,
     	    margin: 1,
-            elevation: 100,
+            elevation: 10,
             width: "100%",
             justifyContent: 'center',
             alignItems: 'center',

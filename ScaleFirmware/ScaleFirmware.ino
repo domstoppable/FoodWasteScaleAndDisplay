@@ -1,5 +1,5 @@
 #include <SoftwareSerial.h>
-#include <HX711_ADC.h>
+#include "HX711_ADC.h"
 #include "PIRSensor.h"
 
 HX711_ADC loadCell(2, 3); // DT, SCK
@@ -9,8 +9,10 @@ PIRSensor motionSensor(4);
 
 int ledPin = 11;
 long ledOnTime = 0l;
-
-SoftwareSerial bluetoothSerial(9, 8); // RX, TX
+float curWeight = 0;
+float calibrationFactor = -5096;
+String inputString = "";
+SoftwareSerial bluetoothSerial(8, 9); // RX, TX
 
 void setup() {
 	Serial.begin(9600);
@@ -45,30 +47,91 @@ void loop(){
 
 	if(motionSensor.update()){
 		if(motionSensor.state && ledOnTime == 0l){
-			bluetoothSerial.println("m");
-			Serial.println("Motion detected!");
+//			bluetoothSerial.println("m");
+//      Serial.print("m");
+//			Serial.println("Motion detected!");
 		}
 		digitalWrite(ledPin, HIGH);
 		ledOnTime = currentTime;
 	}
 	loadCell.update();
 
-	if (currentTime > lastLoadCellUpdate + 1000l) {
-		float i = loadCell.getData();
+	if (currentTime > lastLoadCellUpdate + 1000) {
+		curWeight = loadCell.getData()*453.592;
+    float i =  float(int(curWeight/10))/100;
 		float v = loadCell.getCalFactor();
 
 		bluetoothSerial.print("w");
 		bluetoothSerial.println(i);
-   
-		Serial.print("Sending weight: ");
-		Serial.println(i);
+   Serial.print("Calibration Factor: ");
+   Serial.print(calibrationFactor);
+   Serial.print("Sending weight: ");
+   Serial.println(i);
+//		Serial.print("Sending weight: ");
+//		Serial.println(i);
 
 		lastLoadCellUpdate = currentTime;
 	}
         
-	if(ledOnTime > 0l && currentTime > ledOnTime + 1000l){
-		ledOnTime = 0l;
-		Serial.println("Disabling LED");
-		digitalWrite(ledPin, LOW);
-	}
+//	if(ledOnTime > 0l && currentTime > ledOnTime + 1000){
+//		ledOnTime = 0l;
+//		Serial.println("Disabling LED");
+//		digitalWrite(ledPin, LOW);
+//	}
+ if(bluetoothSerial.available()>0)
+  {
+//    bluetoothSerial.println("P");
+    char temp = bluetoothSerial.read();
+    Serial.println(temp);
+    if(temp == 't'){
+      loadCell.tare(); //Reset the scale to 0
+      bluetoothSerial.println("R");
+    }
+    else if(temp == 'a'){
+      calibrationFactor += 500;
+      loadCell.setCalFactor(calibrationFactor);
+      bluetoothSerial.println("A");
+    }
+    else if(temp == 'z'){
+      calibrationFactor -= 500;
+      loadCell.setCalFactor(calibrationFactor);
+      bluetoothSerial.println("Z");
+    }
+    else if(temp == 's'){
+      calibrationFactor += 50;
+      loadCell.setCalFactor(calibrationFactor);
+      bluetoothSerial.println("A");
+    }
+    else if(temp == 'x'){
+      calibrationFactor -= 50;
+      loadCell.setCalFactor(calibrationFactor);
+      bluetoothSerial.println("Z");
+    }
+    else if(temp=='g'){
+      bluetoothSerial.print('g');
+      bluetoothSerial.println(calibrationFactor);
+      
+    }
+    else if(temp=='h'){
+      delay(1000);
+      float temp2 = bluetoothSerial.parseInt();
+      
+//      while(bluetoothSerial.available()>0){
+//        delay(100);
+//        char inChar = bluetoothSerial.read();
+//        Serial.println(inChar);
+//        inputString += inChar; 
+//      }
+////      float temp3 = bluetoothSerial.parseInt();
+//      Serial.println(inputString);
+//      inputString = "";
+      calibrationFactor = float(temp2);
+//      bluetoothSerial.println(temp2);
+      Serial.println(calibrationFactor);
+      loadCell.setCalFactor(calibrationFactor);
+    }
+      
+      
+      
+  }
 }
