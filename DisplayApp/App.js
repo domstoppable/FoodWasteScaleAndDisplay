@@ -41,7 +41,7 @@ export default class App extends Component{
 			devices: [],
 			selectedDevice: null,
 			connected: false,
-			debug: null
+//			debug: null
 
 
 		};
@@ -49,19 +49,16 @@ export default class App extends Component{
 	}
 	///Keeping this super light weight. Helper functions to ask for permissions
 	async componentDidMount(){
-	    StatusBar.setHidden(true);
+//	    StatusBar.setHidden(true);
 	    requestAppPermissions();
-	    console.disableYellowBox = true;
+//	    console.disableYellowBox = true;
 	}
 
     render(){
 
         return (
                     //<TestGETForm/>
-//                    <View>
 
-
-//                    </View>
                    <AppContainer/>
 //                    <BluetoothClassicReader/>
                    ///clientid: 819216036500-mtq03qrsu1l3aolhnvs3m9d7ilavc38r.apps.googleusercontent.com

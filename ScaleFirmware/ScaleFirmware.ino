@@ -58,7 +58,7 @@ void loop(){
 
 	if (currentTime > lastLoadCellUpdate + 1000) {
 		curWeight = loadCell.getData()*453.592;
-    float i =  float(int(curWeight/10))/100;
+    float i =  int(curWeight); //grams //float(int(curWeight/10))/100; //kg
 		float v = loadCell.getCalFactor();
 
 		bluetoothSerial.print("w");

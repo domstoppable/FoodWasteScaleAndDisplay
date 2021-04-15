@@ -29,7 +29,7 @@ export default class OperatorPassword extends Component {
   checkOperatorPass = () => {
       curPass = this.state.input_password
 
-      if(curPass == 'a'){
+      if(curPass == 'A'){
         this.props.navigation.navigate('DevOptions', {displayType: 'HomeScreen'});
         }
       else{

@@ -49,6 +49,11 @@ export default class HomeScreen extends Component {
 
 
         </View>
+        <View style={styles2.container_col}>
+            <TouchableHighlight style={styles2.button} onPress={()=> navigate('ExportGoogleDrive', {displayType:'', connected_test})}>
+                        <Text>Debug Export</Text>
+            </TouchableHighlight>
+        </View>
 
         <View style={styles2.container_col}>
             <TouchableHighlight style={styles2.button} onPress={()=> navigate('CalibrationMenu', {displayType:'', connected_test})}>
