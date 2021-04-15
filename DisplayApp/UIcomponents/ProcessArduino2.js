@@ -17,9 +17,7 @@ import RNBluetoothClassic, { BTEvents } from 'react-native-bluetooth-classic';
 import RNFS from "react-native-fs";
 
 const landfillDir = '../Landfill2/';
-const spreadsheetId = '1hLF01Bkc8HvhI3VE3bKnMK-MFCzOwic2s9h36uOPV3Y'
-const formURI = 'https://docs.google.com/forms/d/1bdTauz1McigC98QHIEo_4jvB75s0sQBC3SdQrE30xuQ/formResponse';
-const sheetsURI = 'https://sheets.googleapis.com/v4/spreadsheets/' + spreadsheetId + ':append';
+
 // write the current list of answers to a local csv file
 //const pathToWrite = `${RNFS.DocumentDirectoryPath}/WeightOutput2.csv`;
 const pathToWrite = `${RNFS.ExternalStorageDirectoryPath}/Download/WeightOutput.csv`;
@@ -44,7 +42,6 @@ const fieldNames_Totals = {
 
 const threshWeight = 400; //100 grams/s. Arduino is parsing every 1s
 const midnight = "0:00:00";
-//const garbage_vec = [-10, 0, 0.25, 0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 10];
 const garbage_vec = [-1000000, 1, 25, 50, 75, 100, 150, 200, 250, 300, 350, 422, 100000];
 const imageVec = [require(landfillDir + '/0.png'),
                   require(landfillDir + '/1.png'),
@@ -242,16 +239,6 @@ export default class ProcessArduino2 extends Component {
                         }
 
                     },1000)
-//                this.localExportInterval = setInterval( () => {
-////                    console.warn(pathToWrite)
-//                    this.localExport(); //This uploads to a local data.csv file.
-//                }, 10000)
-
-//                this.localUploadInterval = setInterval( () => {this.localExport,5000});
-//                this.sheetsUploadInterval = setInterval( () => {
-//
-//
-//                   }, 1000*3600); //Upload every hour
 
                  RNBluetoothClassic.disconnect();
                  RNBluetoothClassic.connect(this.state.BTdeviceID)
@@ -270,9 +257,6 @@ export default class ProcessArduino2 extends Component {
     //Make sure to unmount the Arduino SerialPort everytime else it will absolutely fail
     componentWillUnmount() {
         clearInterval(this.myInterval);
-//        clearInterval(localExportInterval);
-//        clearInterval(this.localUploadInterval);
-//        clearInterval(this.sheetsUploadInterval);
         this.onRead.remove();//
         RNBluetoothClassic.disconnect();
     }
@@ -325,88 +309,6 @@ export default class ProcessArduino2 extends Component {
 
     }
 
-    //This is called every midnight
-    resetFunc = () => {
-         var now = new Date();
-         var night = new Date(
-                     now.getFullYear(),
-                     now.getMonth(),
-                     now.getDate() + 1,0,0,0);
-         var msToMidnight = night.getTime() - now.getTime();
-         if(msToMidnight >= 0 && msToMidnight <= 1000){
-            console.warn('reset function called')
-            this.setState({weightOffset: this.state.weight});
-         }
-
-
-    }
-    resetAtMidnight = () =>{
-        var now = new Date();
-        //Need to figure out how to properly get the next night
-        var night = new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate() + 1,0,0,0);
-        var msToMidnight = night.getTime() - now.getTime();
-        setTimeout(() => {
-            var formData = new FormData();
-            formData.append(fieldNames_Totals.Timestamp, this.state.curTime);
-            formData.append(fieldNames_Totals.Weight, '' + this.state.weight);
-            formData.append(fieldNames_Totals.SubjectID, this.state.subjectID);
-            SheetsExport(fieldNames_Totals.formURI, formData)
-            this.resetFunc();
-            this.resetAtMidnight();
-
-
-            }, msToMidnight);
-    }
-
-
-
-//
-//    test = () =>{
-//    //    device. =
-//
-//        RNBluetoothClassic.connect(this.state.BTdeviceID)
-//          .then(() => {
-//            // Success code
-//            console.warn('Connected');
-//          })
-//          .catch((error) => {
-//            // Failure code
-//    //        const readCharacteristic =  device.readCharacteristicForService(deviceID);
-//            console.warn(error);
-//          });
-//    //    const readCharacteristic = await device.readCharacteristicForService(deviceID); // assuming the device is already connected
-//    //     const heightInCentimeters = Buffer.from(readCharacteristic.value, 'base64').readUInt16LE(0);
-//      }
-//      testChange = () => {
-//
-//        this.props.navigation.navigate('WeightChangePrompt', {onSelect: this.onSelect})
-//      }
-//      testDisconnect = () =>{
-//
-//        RNBluetoothClassic.disconnect()
-//        .then(() => {
-//                    // Success code
-//                    console.warn('Disconnected');
-//                  })
-//                  .catch((error) => {
-//                    // Failure code
-//            //        const readCharacteristic =  device.readCharacteristicForService(deviceID);
-//                    console.warn(error);
-//                  });
-//
-//      }
-
-    onSelect = data => {
-        this.setState(data);
-      };
-
-      onPress = () => {
-        this.props.navigate("OperatorComment", { onSelect: this.onSelect });
-      };
-
 	render() {
 	    const {navigate} = this.props.navigation;
 	    const connected_test = this.props.navigation.getParam('connected_test', 0)
@@ -414,7 +316,7 @@ export default class ProcessArduino2 extends Component {
         const displayType = this.props.navigation.getParam('displayType', 0)
         const commentOutput = this.props.navigation.getParam('commentOutput', '');
         const weightChangeDecision = this.props.navigation.getParam('weightChangeDecision', 0)
-        const colorStyles = {backgroundColor: this.state.ambientColor };// '#F5FCFF'
+        const colorStyles = {backgroundColor: this.state.ambientColor };
         {/*You CANNOT use // to comment inside of <View> or it will error */}
 		return (
 			<View style={[styles.container, colorStyles]}>
@@ -461,7 +363,6 @@ export default class ProcessArduino2 extends Component {
 
             } else if (displayType == 'Ambient'){
                 return <Text style={styles.value}>{"\n"}{Number(this.state.weight)- Number(this.state.weightOffset).toFixed(2)}</Text>
-
 
             } else {
 

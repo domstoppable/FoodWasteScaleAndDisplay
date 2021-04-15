@@ -45,9 +45,11 @@ export default class DevOptions extends Component {
           <TouchableHighlight style={styles.button}  onPress={()=> navigate('ProcessArduino2', {displayType:'Metaphoric', connected_test})}>
                         <Text style={styles.buttonText}>Metaphoric</Text>
             </TouchableHighlight>
+            {/*
           <TouchableHighlight style={styles.button}  onPress={()=> navigate('ProcessArduino2', {displayType:'Debug', connected_test})}>
                         <Text style={styles.buttonText}>Debug</Text>
                     </TouchableHighlight>
+                    */}
           </View>
 
     );
@@ -83,6 +85,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'black',
+        borderRadius: 20,
 //        flexDirection: 'column',
       },
 

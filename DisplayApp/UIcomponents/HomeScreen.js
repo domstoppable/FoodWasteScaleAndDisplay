@@ -42,17 +42,11 @@ export default class HomeScreen extends Component {
     <View style={styles2.container}>
         <View style={styles2.container_col}>
             <Text style={styles2.value}> Welcome to the Food Waste Scale </Text>
+
             <TouchableHighlight style={styles2.button} onPress={()=> navigate('DevOptions', {displayType:'', connected_test})}>
             			<Text>Pick Display Type</Text>
             </TouchableHighlight>
 
-
-
-        </View>
-        <View style={styles2.container_col}>
-            <TouchableHighlight style={styles2.button} onPress={()=> navigate('ExportGoogleDrive', {displayType:'', connected_test})}>
-                        <Text>Debug Export</Text>
-            </TouchableHighlight>
         </View>
 
         <View style={styles2.container_col}>
@@ -91,7 +85,7 @@ const styles2 = StyleSheet.create({
                 backgroundColor: '#F5FCFF',
             },
 	container: {
-		flex: 5,
+		flex: 2,
 		justifyContent: 'center',
 		alignItems: 'center',
 		backgroundColor: '#F5FCFF',
@@ -114,14 +108,14 @@ const styles2 = StyleSheet.create({
 	},
 	button: {
     	    height: "20%",
-    	    padding: 20,
+    	    padding: 30,
     	    margin: 1,
-            elevation: 10,
+            elevation: 0,
+            borderRadius: 50,
             width: "100%",
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#fff',
-//            flexDirection: 'row',
+            backgroundColor: '#ded6d5',
           },
     invisView: {
             position: 'absolute',
