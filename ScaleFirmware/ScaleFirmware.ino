@@ -56,7 +56,7 @@ void loop(){
 	//}
 	loadCell.update();
 
-	if (currentTime > lastLoadCellUpdate + 1000) {
+	if (currentTime > lastLoadCellUpdate + 500) {
 		curWeight = loadCell.getData()*453.592;
     float i =  int(curWeight); //grams //float(int(curWeight/10))/100; //kg
 		float v = loadCell.getCalFactor();

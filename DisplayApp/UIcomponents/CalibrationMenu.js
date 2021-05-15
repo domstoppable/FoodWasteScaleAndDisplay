@@ -123,9 +123,9 @@ export default class CalibrationMenu extends Component {
 
 
 //    console.warn(calFactor);
-    this.myTimeout = setTimeout( () => {
-                      this.props.navigation.goBack()
-                      },20000)
+//    this.myTimeout = setTimeout( () => {
+//                      this.props.navigation.goBack()
+//                      },20000)
      this.onRead = RNBluetoothClassic.addListener(BTEvents.READ, (data)=>this.onReadData(data), this);
   }
   componentWillUnmount() {

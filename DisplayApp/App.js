@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Image} from 'react-native';
-import {Picker, StyleSheet, Text, View, Button, StatusBar} from 'react-native';
+import {Picker, StyleSheet, Text, View, Button, StatusBar, BackHandler} from 'react-native';
 import HomeScreen from './UIcomponents/HomeScreen';
 import DevOptions from './UIcomponents/DevOptions';
 import OperatorPassword from './UIcomponents/OperatorPassword';
@@ -26,7 +26,7 @@ import {Device} from 'react-native-ble-plx';
 const MainNavigator = createStackNavigator({
             HomeScreen,DevOptions, ProcessArduino2, OperatorPassword, OperatorComment, WeightChangePrompt, CalibrationMenu, BluetoothMenu, ChangeSubjectName},
             //Start the application on the HomeScreen
-            {initialRouteName: 'HomeScreen'})
+            {initialRouteName: 'DevOptions'})
 //const MainNavigator = createStackNavigator({
 //            HomeScreen,DevOptions},
 //            //Start the application on the HomeScreen
@@ -54,6 +54,7 @@ export default class App extends Component{
 	    StatusBar.setHidden(true);
 	    requestAppPermissions();
 	    console.disableYellowBox = true;
+	    BackHandler.addEventListener('hardwareBackPress', () => {return true})
 	}
 
     render(){

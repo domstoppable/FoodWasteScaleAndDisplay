@@ -77,7 +77,7 @@ export default class BluetoothMenu extends Component {
                 }
                 else{
                     RNFS.appendFile(RNFS.DocumentDirectoryPath + '/configBluetooth.txt', '00:14:03:06:32:6E', 'utf8')
-                    ToastAndroid.show('No file exists', 10)
+                    ToastAndroid.show('No BT file exists', 10)
                 }
         })
 

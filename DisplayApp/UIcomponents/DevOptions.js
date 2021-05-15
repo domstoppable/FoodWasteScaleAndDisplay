@@ -36,6 +36,17 @@ export default class DevOptions extends Component {
                 }
     })
     }
+
+   checkPassword = () => {
+          numTaps = this.state.tapsPassword;
+          if(numTaps >= 2){
+              this.setState({tapsPassword:0})
+              this.props.navigation.navigate('OperatorPassword');
+          }
+          else{
+              this.setState({tapsPassword: numTaps+1})
+          }
+      }
   render() {
     //The master app container contains the navigation object. We need to access that to change to the next screen
     const {navigate} = this.props.navigation;
@@ -48,22 +59,22 @@ export default class DevOptions extends Component {
           <Text style={{fontWeight: 'bold', fontSize:25}}> Select Condition </Text>
           <Text> Subject Name: {this.state.subjectID} </Text>
 
-          <TouchableHighlight style={styles.button}  onPress={()=> navigate('HomeScreen', {displayType:'Baseline', connected_test})}>
+          <TouchableHighlight style={styles.button}  onPress={()=> navigate('OperatorPassword', {displayType:'HomeScreen', connected_test})}>
               <Text style={styles.buttonText}>Homescreen</Text>
             </TouchableHighlight>
 
-          <TouchableHighlight style={styles.button}  onPress={()=> navigate('ProcessArduino2', {displayType:'Baseline', connected_test})}>
-              <Text style={styles.buttonText}>Baseline</Text>
+          <TouchableHighlight style={styles.button}  onPress={()=> navigate('OperatorPassword', {displayType:'Baseline', connected_test})}>
+              <Text style={styles.buttonText}>B</Text>
           </TouchableHighlight>
 
-           <TouchableHighlight style={styles.button}  onPress={()=> navigate('ProcessArduino2', {displayType:'Numeric', connected_test})}>
-                 <Text style={styles.buttonText}>Numeric</Text>
+           <TouchableHighlight style={styles.button}  onPress={()=> navigate('OperatorPassword', {displayType:'Numeric', connected_test})}>
+                 <Text style={styles.buttonText}>N</Text>
              </TouchableHighlight>
-           <TouchableHighlight style={styles.button}  onPress={()=> navigate('ProcessArduino2', {displayType:'Ambient', connected_test})}>
-             <Text style={styles.buttonText}>Ambient</Text>
+           <TouchableHighlight style={styles.button}  onPress={()=> navigate('OperatorPassword', {displayType:'Ambient', connected_test})}>
+             <Text style={styles.buttonText}>A</Text>
          </TouchableHighlight>
-          <TouchableHighlight style={styles.button}  onPress={()=> navigate('ProcessArduino2', {displayType:'Metaphoric', connected_test})}>
-                        <Text style={styles.buttonText}>Metaphoric</Text>
+          <TouchableHighlight style={styles.button}  onPress={()=> navigate('OperatorPassword', {displayType:'Metaphoric', connected_test})}>
+                        <Text style={styles.buttonText}>M</Text>
             </TouchableHighlight>
             {/*
           <TouchableHighlight style={styles.button}  onPress={()=> navigate('ProcessArduino2', {displayType:'Debug', connected_test})}>

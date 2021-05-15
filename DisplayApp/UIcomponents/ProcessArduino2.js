@@ -41,9 +41,10 @@ const fieldNames_Totals = {
     'Comments': 'name="entry.1955302934"',
     'formURI': 'https://docs.google.com/forms/d/e/1FAIpQLSeTDymPxm1ImYeMFVAtduGSDAq8sf9VpwZa737BCtRHqzFFzA/formResponse'};
 
-const threshWeight = 100; //100 grams/s. Arduino is parsing every 1s
+const threshWeight = 25; //100 grams/s. Arduino is parsing every 1s
 const midnight = "0:00:00";
 const garbage_vec = [-1000000, 1, 25, 50, 75, 100, 150, 200, 250, 300, 350, 422, 100000];
+
 const imageVec = [require(landfillDir + '/0.png'),
                   require(landfillDir + '/1.png'),
                   require(landfillDir + '/2.png'),
@@ -91,7 +92,8 @@ export default class ProcessArduino2 extends Component {
                 // time.
                 TOKEN_PATH: 'token.json',
                 //BTdeviceID: '00:14:03:06:2F:D9',
-                BTdeviceID: '00:14:03:05:0C:4D'
+                BTdeviceID: '00:14:03:05:0C:4D',
+                weightVector: new Array(40),//[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,0,0,0,0],
 //                BT1: '00:14:03:06:32:6E'
 //                BT2: '00:14:03:05:0C:4D'
 //                BT3: '00:14:03:05:F4:D8'
@@ -109,18 +111,26 @@ export default class ProcessArduino2 extends Component {
             oldWeight = this.state.weight;
     		this.processData(data)
     		newWeight = this.state.weight;
+            this.setState({weightVector: (this.state.weightVector.slice(1,39).concat(Number(newWeight)))})
     		//Checking on a slope of 10g/s
     		var checkmin = new Date().getMinutes(); //Current Minutes
             var checksec = new Date().getSeconds(); //Current Seconds
             var checkTime = checkmin*60 + checksec;
             var diffTime = checkTime - this.state.lastChange;
 
-    		if((newWeight - oldWeight) < -threshWeight && diffTime > 10){ //&& this.lastChange > 30s theoretically
+    		if((newWeight - oldWeight) < -threshWeight){ //&& diffTime > 10){ //&& this.lastChange > 30s theoretically
     		    console.warn('Significant weight change detected')
     		    //Prompt the user to press a button to indicate whether this weight change was intentional
-    		    this.props.navigation.navigate('WeightChangePrompt', {onSelect: this.onSelect, curWeight: oldWeight, curOffset: this.state.weightOffset});
+    		    this.setState({lastChange: checkTime})
+    		    keepOldWeight = Number(oldWeight);
+
+    		    this.myTimeout = setTimeout(() => {
+    		            newWeight = this.state.weight;
+    		            this.props.navigation.navigate('WeightChangePrompt', {onSelect: this.onSelect, curWeight: newWeight, oldWeight: keepOldWeight,
+    		                                                                  curOffset: this.state.weightOffset,weightVector:this.state.weightVector});
+    		    }, 4000)
                 ///Something will be done in WeightChangePrompt to the weight. In reality we will be fixing the weight state
-                this.setState({lastChange: checkTime})
+
     		}
 
     		//Check for colors on garbage and ambient
@@ -234,7 +244,7 @@ export default class ProcessArduino2 extends Component {
                         if((min == '30' || min == '00') && sec == '00'){
                             var formData = new FormData();
                             formData.append(fieldNames.Timestamp, this.state.curTime);
-                            formData.append(fieldNames.Weight, '' + this.state.weight);
+                            formData.append(fieldNames.Weight, '' + (this.state.weight + this.state.weightOffset));
                             formData.append(fieldNames.SubjectID, this.state.subjectID);
                             SheetsExport(fieldNames.formURI, formData)
                         }
@@ -242,6 +252,7 @@ export default class ProcessArduino2 extends Component {
                         if(new Date().getSeconds() % 10 == 0){
                             this.localExport();
                         }
+
 
                     },1000)
                  RNFS.exists(RNFS.DocumentDirectoryPath + '/configBluetooth.txt')
@@ -298,7 +309,7 @@ export default class ProcessArduino2 extends Component {
           numTaps = this.state.tapsPassword;
           if(numTaps >= 2){
               this.setState({tapsPassword:0})
-              this.props.navigation.navigate('OperatorPassword');
+              this.props.navigation.navigate('OperatorPassword',{displayType:0});
           }
           else{
               this.setState({tapsPassword: numTaps+1})
@@ -319,7 +330,7 @@ export default class ProcessArduino2 extends Component {
     localExport = () => {
 
         // construct csvString
-        const csvString = this.state.subjectID + ',' + this.state.dateWrite + ',' + this.state.curTime + ',' + this.state.weight + '\n';
+        const csvString = this.state.subjectID + ',' + this.state.dateWrite + ',' + this.state.curTime + ',' + (this.state.weight + this.state.weightOffset) + '\n';
         if(!RNFS.exists(pathToWrite)){
             console.warn('Does not exist!!!')
             RNFS.write(pathToWrite, csvString, 'utf8')
@@ -393,7 +404,7 @@ export default class ProcessArduino2 extends Component {
                 return <Text style={styles.value}>{this.state.date} </Text>
 
             } else if (displayType == 'Numeric'){
-                return <Text style={styles.value}>{"\n"}{Number(this.state.weight)+ Number(this.state.weightOffset)} {"\n"} {this.state.curTime}</Text>
+                return <Text style={styles.value}>{"\n"}{Number(this.state.weight)+ Number(this.state.weightOffset)} g</Text>
 
             } else if (displayType == 'Metaphoric'){
                 return (<View style={styles.garbageContainer}>

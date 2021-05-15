@@ -61,6 +61,9 @@ export default class OperatorComment extends Component {
 //      }
 
   }
+  componentWillUnmount() {
+        clearTimeout(this.myTimeout);
+   }
   render() {
     const {navigate} = this.props.navigation;
     const {goBack} = this.props.navigation;

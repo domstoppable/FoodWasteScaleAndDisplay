@@ -6,8 +6,8 @@ import { Component } from 'react';
 import DevOptions from './DevOptions';
 import { Button, Alert, AppRegistry } from 'react-native';
 //import {createStacknavigator} from 'react-navigation';
-
-
+import HomeScreen from './HomeScreen'
+import ProcessArduino2 from './ProcessArduino2';
 export default class OperatorPassword extends Component {
     constructor(){
         super();
@@ -28,10 +28,37 @@ export default class OperatorPassword extends Component {
 //      }
   checkOperatorPass = () => {
       curPass = this.state.input_password
-
-      if(curPass == 'A'){
+      const displayType = this.props.navigation.getParam('displayType', 0)
+      const connected_test = this.props.navigation.getParam('connected_test', 0)
+      if(curPass == 'A' && displayType == 0){
+        this.setState({input_password:''})
         this.props.navigation.navigate('DevOptions', {displayType: 'HomeScreen'});
         }
+      else if(curPass == 'Sal' && displayType == 'HomeScreen'){
+        this.setState({input_password:''})
+        this.props.navigation.navigate('HomeScreen', {displayType:'HomeScreen', connected_test})
+      }
+      else if(curPass == 'Baseline' && displayType == 'Baseline'){
+        this.setState({input_password:''})
+        clearTimeout(this.myTimeout);
+        this.props.navigation.navigate('ProcessArduino2', {displayType:'Baseline', connected_test})
+
+      }
+      else if(curPass == 'Cyber' && displayType == 'Numeric'){
+        this.setState({input_password:''})
+        clearTimeout(this.myTimeout);
+        this.props.navigation.navigate('ProcessArduino2', {displayType:'Numeric', connected_test})
+      }
+      else if(curPass == 'Punk' && displayType == 'Ambient'){
+        this.setState({input_password:''})
+        clearTimeout(this.myTimeout);
+        this.props.navigation.navigate('ProcessArduino2', {displayType:'Ambient', connected_test})
+      }
+      else if(curPass == '2077' && displayType == 'Metaphoric'){
+        this.setState({input_password:''})
+        clearTimeout(this.myTimeout);
+        this.props.navigation.navigate('ProcessArduino2', {displayType:'Metaphoric', connected_test})
+      }
       else{
         this.setState({input_password:''})
 //        console.warn('Wrong password')
@@ -42,18 +69,21 @@ export default class OperatorPassword extends Component {
    componentDidMount(){
     this.myTimeout = setTimeout( () => {
                       this.props.navigation.goBack()
-                      },10000)
+                      },60000)
   }
   componentDidUpdate(prevProps, prevState, snapshot){
 
 //    if (prevProps.data !== this.props.data) {
-        clearTimeout(this.myTimeout);
-        this.myTimeout = setTimeout( () => {
-                              this.props.navigation.goBack()
-                              },10000)
-//      }
+//        clearTimeout(this.myTimeout);
+//        this.myTimeout = setTimeout( () => {
+//                              this.props.navigation.goBack()
+//                              },10000)
+////      }
 
   }
+  componentWillUnmount() {
+        clearTimeout(this.myTimeout);
+   }
   render() {
     const {navigate} = this.props.navigation;
     const {goBack} = this.props.navigation;
