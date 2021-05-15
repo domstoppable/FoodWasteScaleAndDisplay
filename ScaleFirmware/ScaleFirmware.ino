@@ -45,15 +45,15 @@ void setup() {
 void loop(){
 	long currentTime = millis();
 
-	if(motionSensor.update()){
-		if(motionSensor.state && ledOnTime == 0l){
+	//if(motionSensor.update()){
+	//	if(motionSensor.state && ledOnTime == 0l){
 //			bluetoothSerial.println("m");
 //      Serial.print("m");
 //			Serial.println("Motion detected!");
-		}
-		digitalWrite(ledPin, HIGH);
-		ledOnTime = currentTime;
-	}
+		///}
+		//digitalWrite(ledPin, HIGH);
+		//ledOnTime = currentTime;
+	//}
 	loadCell.update();
 
 	if (currentTime > lastLoadCellUpdate + 1000) {

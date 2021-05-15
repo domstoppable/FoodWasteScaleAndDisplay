@@ -103,7 +103,7 @@
 //  });
 //}
 
-import GoogleSheet, { batchGet, get, append, batchUpdate} from 'react-native-google-sheet';
+//import GoogleSheet, { batchGet, get, append, batchUpdate} from 'react-native-google-sheet';
 import React, {Component} from 'react';
 import {Picker, StyleSheet, Text, View, Button, TouchableHighlight} from 'react-native';
 export default function ExportGoogleSheets() {

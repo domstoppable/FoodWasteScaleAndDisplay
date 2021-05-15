@@ -15,6 +15,7 @@ import {ToastAndroid } from 'react-native';
 import {SheetsExport} from './SheetsExport';
 import RNBluetoothClassic, { BTEvents } from 'react-native-bluetooth-classic';
 import RNFS from "react-native-fs";
+import KeepAwake from 'react-native-keep-awake';
 
 const landfillDir = '../Landfill2/';
 
@@ -40,7 +41,7 @@ const fieldNames_Totals = {
     'Comments': 'name="entry.1955302934"',
     'formURI': 'https://docs.google.com/forms/d/e/1FAIpQLSeTDymPxm1ImYeMFVAtduGSDAq8sf9VpwZa737BCtRHqzFFzA/formResponse'};
 
-const threshWeight = 400; //100 grams/s. Arduino is parsing every 1s
+const threshWeight = 100; //100 grams/s. Arduino is parsing every 1s
 const midnight = "0:00:00";
 const garbage_vec = [-1000000, 1, 25, 50, 75, 100, 150, 200, 250, 300, 350, 422, 100000];
 const imageVec = [require(landfillDir + '/0.png'),
@@ -90,7 +91,11 @@ export default class ProcessArduino2 extends Component {
                 // time.
                 TOKEN_PATH: 'token.json',
                 //BTdeviceID: '00:14:03:06:2F:D9',
-                BTdeviceID: '00:14:03:06:32:6E',
+                BTdeviceID: '00:14:03:05:0C:4D'
+//                BT1: '00:14:03:06:32:6E'
+//                BT2: '00:14:03:05:0C:4D'
+//                BT3: '00:14:03:05:F4:D8'
+
 
             };
             this.buffer = '';
@@ -113,14 +118,15 @@ export default class ProcessArduino2 extends Component {
     		if((newWeight - oldWeight) < -threshWeight && diffTime > 10){ //&& this.lastChange > 30s theoretically
     		    console.warn('Significant weight change detected')
     		    //Prompt the user to press a button to indicate whether this weight change was intentional
-    		    this.props.navigation.navigate('WeightChangePrompt', {onSelect: this.onSelect, curWeight: this.state.weight});
+    		    this.props.navigation.navigate('WeightChangePrompt', {onSelect: this.onSelect, curWeight: oldWeight, curOffset: this.state.weightOffset});
                 ///Something will be done in WeightChangePrompt to the weight. In reality we will be fixing the weight state
                 this.setState({lastChange: checkTime})
     		}
 
     		//Check for colors on garbage and ambient
+    		totalWeight = Number(newWeight) + Number(this.state.weightOffset);
             for(i = 0; i < 12; i++){
-                if(newWeight > garbage_vec[i] & newWeight < garbage_vec[i+1]){
+                if(totalWeight > garbage_vec[i] & totalWeight < garbage_vec[i+1]){
                     this.setState({garbagePicture: imageVec[i]})
                     this.setState({oldGarbagePicture: imageVec[i]})
                     if(this.state.ambientCheck == 1){
@@ -164,7 +170,6 @@ export default class ProcessArduino2 extends Component {
             const displayType = this.props.navigation.getParam('displayType', 0)
 
             if(displayType == 'Ambient'){
-                console.warn('Selected ambient')
                 this.setState({ambientCheck:1});
             }
                 //First evaluate the file "config.txt"
@@ -216,13 +221,13 @@ export default class ProcessArduino2 extends Component {
 //                        console.warn(pathToWrite)
 
                         // Midnight counter
-                        if(hours == 0 && min == '00' && sec == '00'){
+                        if(hours == 12 && min == '00' && sec == '00'){
                             var formData = new FormData();
                             formData.append(fieldNames_Totals.Timestamp, this.state.curTime);
                             formData.append(fieldNames_Totals.Weight, '' + this.state.weight);
                             formData.append(fieldNames_Totals.SubjectID, this.state.subjectID);
                             SheetsExport(fieldNames_Totals.formURI, formData)
-                            this.setState({weightOffset: this.state.weight});
+                            this.setState({weightOffset: -this.state.weight});
                         }
 
                         // Hourly counter
@@ -239,17 +244,31 @@ export default class ProcessArduino2 extends Component {
                         }
 
                     },1000)
+                 RNFS.exists(RNFS.DocumentDirectoryPath + '/configBluetooth.txt')
+                        .then((exists) => {
+                            if(exists){
+                                RNFS.readFile(RNFS.DocumentDirectoryPath + '/configBluetooth.txt', 'utf8')
+                                     .then((result) => {this.setState({BTdeviceID: result})
+                                                        this.connectBT(result)})
+                            }
+                            else{
+                                RNFS.appendFile(RNFS.DocumentDirectoryPath + '/configBluetooth.txt', '00:14:03:06:32:6E', 'utf8')
+                                ToastAndroid.show('No file exists', 10)
+                            }
+                    })
 
-                 RNBluetoothClassic.disconnect();
-                 RNBluetoothClassic.connect(this.state.BTdeviceID)
-                       .then(() => {
-                         // Success code
-                         ToastAndroid.show('Bluetooth Connected!', 1500);
-                       })
-                       .catch((error) => {
-                         // Failure code
-                         console.warn(error);
-                       });
+                 RNFS.exists(RNFS.DocumentDirectoryPath + '/configSubjectName.txt')
+                        .then((exists) => {
+                            if(exists){
+                                RNFS.readFile(RNFS.DocumentDirectoryPath + '/configSubjectName.txt', 'utf8')
+                                     .then((result) => {this.setState({subjectID: result})
+                                                       })
+                            }
+                            else{
+                                RNFS.appendFile(RNFS.DocumentDirectoryPath + '/configSubjectName.txt', 'Subject1', 'utf8')
+                                ToastAndroid.show('No file exists', 10)
+                            }
+                    })
                  this.onRead = RNBluetoothClassic.addListener(BTEvents.READ, (data)=>this.onReadData(data), this);
 //                 this.resetFunc();
 
@@ -308,7 +327,28 @@ export default class ProcessArduino2 extends Component {
         RNFS.appendFile(pathToWrite, csvString, 'utf8')
 
     }
+    onSelect = data => {
+        this.setState(data);
+      };
 
+      onPress = () => {
+        this.props.navigate("OperatorComment", { onSelect: this.onSelect });
+      };
+    connectBT = (curID) => {
+         this.setState({BTdeviceID: curID});
+         RNBluetoothClassic.disconnect();
+         RNBluetoothClassic.connect(curID)
+           .then(() => {
+             // Success code
+             this.setState({BTconnected: true})
+             ToastAndroid.show('Bluetooth Connected!', 1500);
+           })
+           .catch((error) => {
+             // Failure code
+             console.warn(error);
+           });
+        ToastAndroid.show(curID,10)
+    }
 	render() {
 	    const {navigate} = this.props.navigation;
 	    const connected_test = this.props.navigation.getParam('connected_test', 0)
@@ -342,6 +382,7 @@ export default class ProcessArduino2 extends Component {
                 <View style={styles.invisViewTopRight}>
                                     <TouchableHighlight style={[styles.invisButton, colorStyles]} onPress={this.testChange}><Text></Text></TouchableHighlight>
                 </View>
+                <KeepAwake/>
 			</View>
 		);
 	}
@@ -349,20 +390,19 @@ export default class ProcessArduino2 extends Component {
 	//This will check through all the current display types, and pick the way to display the information
 	displayScreenMessage = (displayType) =>{
             if(displayType == 'Baseline'){
-                return <Text style={styles.value}>{this.state.date}</Text>
+                return <Text style={styles.value}>{this.state.date} </Text>
 
             } else if (displayType == 'Numeric'){
-                return <Text style={styles.value}>{"\n"}{Number(this.state.weight)- Number(this.state.weightOffset).toFixed(2)} {"\n"} {this.state.curTime}</Text>
+                return <Text style={styles.value}>{"\n"}{Number(this.state.weight)+ Number(this.state.weightOffset)} {"\n"} {this.state.curTime}</Text>
 
             } else if (displayType == 'Metaphoric'){
                 return (<View style={styles.garbageContainer}>
 
                             <Image style={styles.garbageImage} fadeDuration={1} source={this.state.garbagePicture} defaultSource={this.state.oldGarbagePicture}/>
-                            <Text style={styles.value}>{"\n"}{Number(this.state.weight)- this.state.weightOffset} {"\n"}</Text>
+                            <Text style={styles.value}>{"\n"}{Number(this.state.weight)+ Number(this.state.weightOffset)} {"\n"}</Text>
                        </View>)
 
             } else if (displayType == 'Ambient'){
-                return <Text style={styles.value}>{"\n"}{Number(this.state.weight)- Number(this.state.weightOffset).toFixed(2)}</Text>
 
             } else {
 

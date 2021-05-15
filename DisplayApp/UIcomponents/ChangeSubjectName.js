@@ -1,14 +1,15 @@
 
-
 import * as React from 'react';
 import { Text, View, StyleSheet , TextInput, TouchableHighlight} from 'react-native';
 import { Component } from 'react';
 import DevOptions from './DevOptions';
 import { Button, Alert, AppRegistry } from 'react-native';
-//import {createStacknavigator} from 'react-navigation';
+import RNFS from 'react-native-fs';
+import {SheetsExport} from './SheetsExport';
+import {ToastAndroid } from 'react-native';
 
-
-export default class WeightChangePrompt extends Component {
+//const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/A3.csv`;
+export default class ChangeSubjectName extends Component {
     constructor(){
         super();
         this.isDeveloper='This is the OperatorPassword'
@@ -16,7 +17,6 @@ export default class WeightChangePrompt extends Component {
                       input_password: '',
                       myTimeout: null,
                       maxTime: 10000,}//10 seconds timeout after no action
-
     }
     // Somehow the title screen is read from navigationOptions
     //Difference of having navigations inside or outside render options?
@@ -27,25 +27,17 @@ export default class WeightChangePrompt extends Component {
 //        console.warn(Orientation)
 ////          Orientation.lockToPortrait();
 //      }
-  checkYes = () => {
+    saveSubjectName = () => {
+      result = this.state.input_password
+      RNFS.writeFile(RNFS.DocumentDirectoryPath + '/configSubjectName.txt', result, 'utf8')
+      ToastAndroid.show('Saved subject name: ' + result, 50);
+      this.props.navigation.goBack();
+    }
+  checkOperatorComment = () => {
+      curComment = this.state.input_password
+      RNFS.appendFile(pathToWrite, curComment, 'utf8');
+      this.props.navigation.goBack();
 
-      const {navigation} = this.props;
-      navigation.goBack();
-      const weight = this.props.navigation.getParam('curWeight', 0)
-      const curOffset = this.props.navigation.getParam('curOffset', 0)
-      //If true, do nothing.
-       //Do something
-       navigation.state.params.onSelect({weightOffset: Number(weight)+Number(curOffset)})
-
-  }
-  checkNo = () => {
-        const {navigation} = this.props;
-        navigation.goBack();
-         const curOffset = this.props.navigation.getParam('curOffset', 0)
-
-        //If false, ??? something about adding back weight
-        //Do something
-        navigation.state.params.onSelect({weightOffset: curOffset})
   }
 //  setTimeout(function(){that.setState({timePassed: true})}, 1000);
    componentDidMount(){
@@ -68,19 +60,29 @@ export default class WeightChangePrompt extends Component {
     const {goBack} = this.props.navigation;
     displayType = this.state.paramstest;
     const connected_test = this.props.navigation.getParam('connected_test', 0);
-    const curWeight = this.props.navigation.getParam('curWeight', 0);
+
 //    const input_password = '';
     return (
     //Buttons should be placed in Views so that they can be more modular
     <View style={styles2.container}>
+        <Text style={styles2.value}> Enter Subject Name </Text>
+        <TextInput style={{height: 45,width: "50%",borderColor: "gray",borderWidth: 2, textAlign:'center', margin: 10}}
+//           placeholder="Password"
+//           placeholderTextColor="#9a73ef"
+           returnKeyType='go'
+           autoCorrect={false}
+           contextMenuHidden={true}
+           disableFullscreenUI={true}
+           onChangeText={(value) => this.setState({input_password: value})}
+           value={this.state.input_password}
+        />
         <View style={styles2.containerrow}>
-        <Text style={styles2.value}> We detected a weight reduction, {"\n"}
-        please select the following: </Text>
-        <TouchableHighlight style={styles2.button}  onPress={()=> this.checkYes()}>
-                    <Text style={{color:'white'}}>Emptying the trash</Text>
+
+        <TouchableHighlight style={styles2.button}  onPress={this.saveSubjectName}>
+                    <Text style={{color:'white'}}>Ok</Text>
                   </TouchableHighlight>
-          <TouchableHighlight style={styles2.button}  onPress={()=> this.checkNo()}>
-                              <Text style={{color:'white'}}>Removing item from trash</Text>
+          <TouchableHighlight style={styles2.button}  onPress={()=> goBack()}>
+                              <Text style={{color:'white'}}>Cancel</Text>
                             </TouchableHighlight>
         </View>
       </View>
@@ -90,14 +92,14 @@ export default class WeightChangePrompt extends Component {
 
 const styles2 = StyleSheet.create({
 	container: {
-		flex: 3,
+		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
 		backgroundColor: '#F5FCFF',
 	},
 	containerrow: {
 
-    		flexDirection: 'column',
+    		flexDirection: 'row',
     		justifyContent: 'center',
     		alignItems: 'center',
     		backgroundColor: '#F5FCFF',
@@ -120,7 +122,7 @@ const styles2 = StyleSheet.create({
 //		flexGrow:1,
 	},
 	button: {
-    	    height: "20%",
+    	    height: "50%",
     	    padding: 10,
     	    margin: 20,
             elevation: 10,

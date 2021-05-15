@@ -3,7 +3,9 @@ import * as React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import { Component } from 'react';
 import DevOptions from './DevOptions';
+import ChangeSubjectName from './ChangeSubjectName';
 import { Button, Alert, AppRegistry, TouchableHighlight } from 'react-native';
+import RNFS from "react-native-fs";
 
 //import {createStacknavigator} from 'react-navigation';
 
@@ -12,7 +14,8 @@ export default class HomeScreen extends Component {
     constructor(){
         super();
         this.isDeveloper='This is the Homescreen'
-        this.state = {displayType:'Welcome', taps:0}
+        this.state = {displayType:'Welcome', taps:0, subjectID: 'Subject1'}
+
 //        this.paramstest = props.navigation.state.params.displayType
     }
     // Somehow the title screen is read from navigationOptions
@@ -53,9 +56,19 @@ export default class HomeScreen extends Component {
             <TouchableHighlight style={styles2.button} onPress={()=> navigate('CalibrationMenu', {displayType:'', connected_test})}>
                         <Text>Calibrations</Text>
             </TouchableHighlight>
+        </View>
 
 
+        <View style={styles2.container_col}>
+            <TouchableHighlight style={styles2.button} onPress={()=> navigate('ChangeSubjectName', {displayType:'', connected_test})}>
+                        <Text> Change Subject Name</Text>
+            </TouchableHighlight>
+        </View>
 
+        <View style={styles2.container_col}>
+            <TouchableHighlight style={styles2.button} onPress={()=> navigate('BluetoothMenu', {displayType:'', connected_test})}>
+                        <Text>BluetoothMenu</Text>
+            </TouchableHighlight>
         </View>
         {/*Button in the bottom left. Need to tap 6 times to open*/}
         <View style={styles2.invisView}>

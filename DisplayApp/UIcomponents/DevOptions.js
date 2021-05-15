@@ -7,17 +7,35 @@ import {TouchableHighlight} from 'react-native';
 import HomeScreen from './HomeScreen'
 import OperatorPassword from './OperatorPassword'
 import ProcessArduino2 from './ProcessArduino2';
+import RNFS from "react-native-fs";
 
 export default class DevOptions extends Component {
     constructor(){
         super();
         this.devText='Dev options';
+        this.state = { subjectID: 'Subject1'}
+
     }
 
     //NavigationOptions somehow gets read into the screen
   static navigationOptions = {
           header:null
         };
+
+    componentDidMount() {
+        RNFS.exists(RNFS.DocumentDirectoryPath + '/configSubjectName.txt')
+            .then((exists) => {
+                if(exists){
+                    RNFS.readFile(RNFS.DocumentDirectoryPath + '/configSubjectName.txt', 'utf8')
+                         .then((result) => {this.setState({subjectID: result})
+                                           })
+                }
+                else{
+                    RNFS.appendFile(RNFS.DocumentDirectoryPath + '/configSubjectName.txt', 'Subject1', 'utf8')
+                    ToastAndroid.show('No file exists', 10)
+                }
+    })
+    }
   render() {
     //The master app container contains the navigation object. We need to access that to change to the next screen
     const {navigate} = this.props.navigation;
@@ -28,6 +46,8 @@ export default class DevOptions extends Component {
         //Buttons should be placed in Views to make it more modular
         <View style={styles.container}>
           <Text style={{fontWeight: 'bold', fontSize:25}}> Select Condition </Text>
+          <Text> Subject Name: {this.state.subjectID} </Text>
+
           <TouchableHighlight style={styles.button}  onPress={()=> navigate('HomeScreen', {displayType:'Baseline', connected_test})}>
               <Text style={styles.buttonText}>Homescreen</Text>
             </TouchableHighlight>

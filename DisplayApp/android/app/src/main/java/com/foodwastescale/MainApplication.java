@@ -3,6 +3,7 @@ package com.foodwastescale;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.corbt.keepawake.KCKeepAwakePackage;
 import com.rnfs.RNFSPackage;
 import kjd.reactnative.bluetooth.RNBluetoothClassicPackage;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
@@ -32,6 +33,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new KCKeepAwakePackage(),
             new RNFSPackage(),
             new RNBluetoothClassicPackage(),
             new RNCWebViewPackage(),

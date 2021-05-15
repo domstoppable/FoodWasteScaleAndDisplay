@@ -8,6 +8,8 @@ import OperatorComment from './UIcomponents/OperatorComment';
 import ProcessArduino2 from './UIcomponents/ProcessArduino2';
 import WeightChangePrompt from './UIcomponents/WeightChangePrompt';
 import CalibrationMenu from './UIcomponents/CalibrationMenu'
+import ChangeSubjectName from './UIcomponents/ChangeSubjectName'
+import BluetoothMenu from './UIcomponents/BluetoothMenu'
 import {RNSerialport, definitions, actions} from 'react-native-serialport';
 import {DeviceEventEmitter} from 'react-native';
 import GLOBALS from './UIcomponents/Globals';
@@ -22,7 +24,7 @@ import BluetoothClassicReader from './UIcomponents/BluetoothClassicReader'
 import {Device} from 'react-native-ble-plx';
 
 const MainNavigator = createStackNavigator({
-            HomeScreen,DevOptions, ProcessArduino2, OperatorPassword, OperatorComment, WeightChangePrompt, CalibrationMenu},
+            HomeScreen,DevOptions, ProcessArduino2, OperatorPassword, OperatorComment, WeightChangePrompt, CalibrationMenu, BluetoothMenu, ChangeSubjectName},
             //Start the application on the HomeScreen
             {initialRouteName: 'HomeScreen'})
 //const MainNavigator = createStackNavigator({
@@ -41,7 +43,7 @@ export default class App extends Component{
 			devices: [],
 			selectedDevice: null,
 			connected: false,
-//			debug: null
+			debug: null
 
 
 		};
@@ -49,9 +51,9 @@ export default class App extends Component{
 	}
 	///Keeping this super light weight. Helper functions to ask for permissions
 	async componentDidMount(){
-//	    StatusBar.setHidden(true);
+	    StatusBar.setHidden(true);
 	    requestAppPermissions();
-//	    console.disableYellowBox = true;
+	    console.disableYellowBox = true;
 	}
 
     render(){
