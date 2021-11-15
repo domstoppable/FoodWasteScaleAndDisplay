@@ -24,7 +24,7 @@
     "react-native-keep-awake": "^4.0.0",
     "react-native-orientation-locker": "^1.1.6",
     "react-native-serialport": "^1.2.1",
-    "react-native-webview": "^7.4.1",
+    "react-native-webview": "^11.0.0",
     "react-navigation": "^3.12.1",
     "react-redux": "^7.1.1",
     "readline": "^1.3.0",
