@@ -3,6 +3,13 @@ package com.foodwastescale;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.corbt.keepawake.KCKeepAwakePackage;
+import com.rnfs.RNFSPackage;
+import kjd.reactnative.bluetooth.RNBluetoothClassicPackage;
+import com.reactnativecommunity.webview.RNCWebViewPackage;
+import org.wonday.orientation.OrientationPackage;
+//import com.RNFetchBlob.RNFetchBlobPackage;
+import com.polidea.reactnativeble.BlePackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 //import io.raks.wakeupapp.ReactNativeWakeUpAppPackage;
 import com.melihyarikkaya.rnserialport.RNSerialportPackage;
@@ -26,8 +33,13 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new KCKeepAwakePackage(),
+            new RNFSPackage(),
+            new RNBluetoothClassicPackage(),
+            new RNCWebViewPackage(),
+            new OrientationPackage(),
+            new BlePackage(),
             new RNGestureHandlerPackage(),
-            //new ReactNativeWakeUpAppPackage(),
             new RNSerialportPackage()
       );
     }

@@ -16,7 +16,7 @@ export default MainNavigation{
 
                 //Initialize the screens into the variable space in this main stack navigator
                 {
-                    HomeScreen,DevOptions, ProcessArduino
+                    HomeScreen,DevOptions, ProcessArduino2
 
                 },
                 //Start the application on the HomeScreen

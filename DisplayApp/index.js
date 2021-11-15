@@ -1,12 +1,13 @@
 /**
  * @format
  */
-
+//
 import {AppRegistry} from 'react-native';
 import App from './App';
 import HomeScreen from './UIcomponents/HomeScreen'
 import DevOptions from './UIcomponents/DevOptions'
-import ProcessArduino from './UIcomponents/ProcessArduino'
+//import ProcessArduino from './UIcomponents/ProcessArduino'
+import ProcessArduino2 from './UIcomponents/ProcessArduino2'
 //import MainNavigation from './UIcomponents/MainNavigation'
 import {name as appName} from './app.json';
 import './UIcomponents/Globals'
@@ -24,3 +25,25 @@ global.weightlog = 996
     // );
   // }
 // }
+
+//
+//import { BleManager } from 'react-native-ble-plx';
+//
+//export const create = () => {
+//  ble = new BleManager();
+//};
+//
+//export const setLogLevel = logLevel => {
+//  ble.setLogLevel(logLevel);
+//};
+//
+//export const restart = () => {
+//  ble.destroy();
+//  create();
+//};
+//
+//export const cancelConnection = machineId => ble.cancelDeviceConnection(machineId);
+//
+//create();
+//
+//export let ble;
